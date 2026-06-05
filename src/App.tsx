@@ -13,7 +13,7 @@ import { FinanceClosing } from './views/admin/FinanceClosing';
 import { ReportsView } from './views/admin/ReportsView';
 import { UserManagement } from './views/admin/UserManagement';
 
-// Representative Views
+// Rep Views
 import { RepDashboard } from './views/rep/RepDashboard';
 import { RepPOS } from './views/rep/RepPOS';
 import { RepCustodyCheck } from './views/rep/RepCustodyCheck';
@@ -32,12 +32,9 @@ import {
   Menu, 
   X,
   Database,
-  ShoppingCart,
-  UserCheck
+  ShoppingCart
 } from 'lucide-react';
-import { useTranslation as i18nHook } from './context/TranslationContext';
 
-// Inner App Wrapper to consume AuthContext
 const AppContent: React.FC = () => {
   const { user, logout, isFirebase } = useAuth();
   const { t, language, setLanguage, isRTL } = useTranslation();
@@ -51,7 +48,6 @@ const AppContent: React.FC = () => {
 
   const isRep = user.role === 'rep';
   const isWarehouseManager = user.role === 'warehouse';
-  const isAdmin = user.role === 'admin';
 
   const toggleLanguage = () => {
     setLanguage(language === 'en' ? 'ar' : 'en');
@@ -62,32 +58,30 @@ const AppContent: React.FC = () => {
     const renderRepContent = () => {
       switch (activeTab) {
         case 'dashboard':
-          return <RepDashboard onNavigate={(tab) => setActiveTab(tab)} />;
+          return <RepDashboard onNavigate={(tab: string) => setActiveTab(tab)} />;
         case 'pos':
           return <RepPOS />;
         case 'custody':
           return <RepCustodyCheck />;
         default:
-          return <RepDashboard onNavigate={(tab) => setActiveTab(tab)} />;
+          return <RepDashboard onNavigate={(tab: string) => setActiveTab(tab)} />;
       }
     };
 
     return (
-      <div className="flex flex-col min-h-screen bg-slate-950 pb-16">
+      <div className="rep-container flex flex-col min-h-screen bg-slate-950 pb-16">
         
         {/* Mobile Header */}
-        <header className="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-white/5 py-4 px-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <span className="text-neon-cyan font-black tracking-tight text-sm uppercase">
-              {t('appName')}
-            </span>
-          </div>
+        <header className="rep-header flex justify-between items-center">
+          <span className="text-neon-cyan font-black tracking-tight text-sm uppercase">
+            {t('appName')}
+          </span>
 
           <div className="flex items-center gap-3">
             {/* DB Connection state */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[10px]">
+            <div className="flex items-center gap-1-5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[10px]">
               <Database className={`w-3 h-3 ${isFirebase ? 'text-neon-green' : 'text-neon-cyan animate-pulse'}`} />
-              <span className="text-text-secondary hidden xs:inline">
+              <span className="text-text-secondary">
                 {isFirebase ? 'Cloud' : 'Mock'}
               </span>
             </div>
@@ -111,12 +105,12 @@ const AppContent: React.FC = () => {
         </header>
 
         {/* Mobile main body */}
-        <main className="flex-1 p-4 overflow-y-auto">
+        <main className="rep-content flex-1 p-4 overflow-y-auto">
           {renderRepContent()}
         </main>
 
         {/* Mobile bottom tab bar */}
-        <nav className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-lg border-t border-white/5 flex justify-around py-2">
+        <nav className="rep-navbar flex justify-around py-2">
           
           {/* Dashboard Tab */}
           <button
@@ -185,12 +179,12 @@ const AppContent: React.FC = () => {
       case 'clients':
         return <ClientCRM />;
       case 'finance':
-        if (isWarehouseManager) return <AdminDashboard />; // protection
+        if (isWarehouseManager) return <AdminDashboard />;
         return <FinanceClosing />;
       case 'reports':
         return <ReportsView />;
       case 'users':
-        if (isWarehouseManager) return <AdminDashboard />; // protection
+        if (isWarehouseManager) return <AdminDashboard />;
         return <UserManagement />;
       default:
         return <AdminDashboard />;
@@ -198,12 +192,12 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-slate-950 overflow-hidden">
+    <div className="admin-container flex h-screen bg-slate-950 overflow-hidden">
       
       {/* Sidebar - Desktop */}
-      <aside className={`hidden md:flex flex-col w-64 bg-slate-900 border-${isRTL ? 'l' : 'r'} border-white/5 flex-shrink-0 z-30 relative`}>
+      <aside className="sidebar flex flex-col">
         {/* App Title */}
-        <div className="p-6 border-b border-white/5">
+        <div className="sidebar-brand">
           <h1 className="text-xl font-black tracking-tight text-white text-glow-cyan uppercase">
             {t('appName')}
           </h1>
@@ -213,7 +207,7 @@ const AppContent: React.FC = () => {
         </div>
 
         {/* Menu Items */}
-        <nav className="flex-1 p-4 flex flex-col gap-1.5 overflow-y-auto custom-scrollbar">
+        <nav className="sidebar-nav flex flex-col gap-1-5 custom-scrollbar">
           {allowedMenuItems.map(item => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -235,8 +229,8 @@ const AppContent: React.FC = () => {
         </nav>
 
         {/* Footer info & Logout */}
-        <div className="p-4 border-t border-white/5 bg-slate-950/40 flex flex-col gap-3">
-          <div className="flex items-center gap-2.5">
+        <div className="sidebar-footer flex flex-col gap-3">
+          <div className="flex items-center gap-2-5">
             <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs font-bold text-white">
               {user.name.charAt(0)}
             </div>
@@ -266,16 +260,16 @@ const AppContent: React.FC = () => {
       </aside>
 
       {/* Main Panel Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="main-panel flex flex-col">
         
-        {/* Top Header bar - Desktop / Mobile Toggle */}
-        <header className="bg-slate-900 border-b border-white/5 py-4 px-6 flex justify-between items-center flex-shrink-0">
+        {/* Top Header bar */}
+        <header className="header-bar flex justify-between items-center">
           
-          {/* Hamburger toggle for Mobile View */}
           <div className="flex items-center gap-3">
+            {/* Hamburger menu for Mobile/Tablet views */}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg"
+              className="hamburger-btn p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg"
             >
               <Menu className="w-6 h-6" />
             </button>
@@ -289,25 +283,24 @@ const AppContent: React.FC = () => {
             </div>
           </div>
 
-          {/* User info */}
+          {/* Active User display */}
           <div className="flex items-center gap-4">
-            <span className="text-xs text-text-secondary hidden sm:inline">
+            <span className="text-xs text-text-secondary">
               {t('activeUser')}: <strong className="text-white">{user.name}</strong>
             </span>
           </div>
         </header>
 
         {/* Content Body */}
-        <main className="flex-grow p-6 overflow-y-auto custom-scrollbar">
+        <main className="content-area custom-scrollbar">
           {renderAdminContent()}
         </main>
       </div>
 
-      {/* Mobile Drawer Menu Navigation (For managers on tablet/mobile screens) */}
+      {/* Mobile Drawer Menu Navigation */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden bg-black/80 backdrop-blur-sm">
-          
-          <div className="w-64 bg-slate-900 h-full flex flex-col border-r border-white/5 relative p-4">
+        <div className="mobile-drawer-overlay" onClick={() => setMobileMenuOpen(false)}>
+          <div className="mobile-drawer-content flex flex-col" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setMobileMenuOpen(false)}
               className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-full"
@@ -319,7 +312,7 @@ const AppContent: React.FC = () => {
               {t('appName')}
             </h1>
 
-            <nav className="flex-1 flex flex-col gap-1.5 overflow-y-auto">
+            <nav className="flex-1 flex flex-col gap-1-5 overflow-y-auto">
               {allowedMenuItems.map(item => {
                 const Icon = item.icon;
                 const isActive = activeTab === item.id;
@@ -346,14 +339,14 @@ const AppContent: React.FC = () => {
             <div className="border-t border-white/5 pt-4 flex flex-col gap-3">
               <button
                 onClick={toggleLanguage}
-                className="w-full btn-secondary py-2 text-xs flex items-center justify-center gap-1.5"
+                className="w-full btn-secondary py-2 text-xs flex items-center justify-center gap-1-5"
               >
                 <Globe className="w-4 h-4 text-neon-pink" />
                 <span>{t('toggleLanguage')}</span>
               </button>
               <button
                 onClick={logout}
-                className="w-full btn-primary-pink py-2 text-xs flex items-center justify-center gap-1.5"
+                className="w-full btn-primary-pink py-2 text-xs flex items-center justify-center gap-1-5"
               >
                 <LogOut className="w-4 h-4" />
                 <span>{t('logout')}</span>
@@ -361,9 +354,6 @@ const AppContent: React.FC = () => {
             </div>
 
           </div>
-
-          {/* Close trigger overlay area */}
-          <div className="flex-1" onClick={() => setMobileMenuOpen(false)}></div>
         </div>
       )}
 
