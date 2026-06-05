@@ -385,3 +385,60 @@ body.rtl-layout .dense-table {
     box-shadow: 0 0 0 0 rgba(0, 242, 254, 0);
   }
 }
+
+/* Mobile & Tablet Responsive Enhancements */
+@media (max-width: 768px) {
+  body, html {
+    font-size: 14px; /* Slightly smaller base font */
+  }
+
+  .glass-panel {
+    padding: 16px !important; /* Reduce card padding on mobile */
+    border-radius: 12px;
+  }
+
+  h1 {
+    font-size: 1.6rem !important;
+  }
+
+  h2 {
+    font-size: 1.3rem !important;
+  }
+
+  /* Table responsive styling */
+  .dense-table th, 
+  .dense-table td {
+    padding: 10px 8px; /* High density packing for tiny screens */
+    font-size: 0.8rem;
+  }
+
+  .dense-table-container {
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(8, 12, 30, 0.4);
+  }
+
+  /* Modals padding */
+  .dialog-content {
+    width: 95vw;
+    padding: 16px;
+  }
+
+  /* Input sizing */
+  input, select, button {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  .grid-cols-auto-fit {
+    grid-template-columns: 1fr; /* Stack dashboard cards */
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .xs\:hidden {
+    display: none !important;
+  }
+}
+
