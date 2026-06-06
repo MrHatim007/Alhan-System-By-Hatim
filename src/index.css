@@ -913,20 +913,28 @@ input:-webkit-autofill:active {
 /* RTL Icon & Spacing Refinements */
 body.rtl-layout .sidebar-nav button,
 body.rtl-layout .sidebar button,
-body.rtl-layout .rep-sidebar button,
-body.rtl-layout .rep-navbar button,
-body.rtl-layout .rep-mobile-navbar button {
-  flex-direction: row !important; /* Force side-by-side layout */
+body.rtl-layout .rep-sidebar button {
+  flex-direction: row !important; /* Force side-by-side layout for horizontal buttons */
   justify-content: flex-start !important;
 }
 
 body.rtl-layout .sidebar-nav button svg,
 body.rtl-layout .sidebar button svg,
 body.rtl-layout .rep-sidebar button svg,
-body.rtl-layout .rep-navbar button svg,
-body.rtl-layout .rep-mobile-navbar button svg,
 body.rtl-layout button svg {
   flex-shrink: 0 !important;
+}
+
+/* Card absolute icon badge positioning LTR vs RTL */
+.card-icon-badge {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+}
+
+body.rtl-layout .card-icon-badge {
+  right: auto !important;
+  left: 12px !important;
 }
 
 /* Group headers and text alignment in RTL */

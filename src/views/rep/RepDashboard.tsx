@@ -103,7 +103,7 @@ export const RepDashboard: React.FC<RepDashboardProps> = ({ onNavigate }) => {
           <strong className="text-xl font-black text-white text-glow-green font-mono">
             ${getTodaySales().toLocaleString()}
           </strong>
-          <div className="absolute top-3 right-3 text-neon-green/20">
+          <div className="card-icon-badge text-neon-green/20">
             <Award className="w-5 h-5" />
           </div>
         </GlassCard>
@@ -116,7 +116,7 @@ export const RepDashboard: React.FC<RepDashboardProps> = ({ onNavigate }) => {
           <strong className="text-xl font-black text-white text-glow-cyan font-mono">
             ${getTodayCashCollected().toLocaleString()}
           </strong>
-          <div className="absolute top-3 right-3 text-neon-cyan/20">
+          <div className="card-icon-badge text-neon-cyan/20">
             <DollarSign className="w-5 h-5" />
           </div>
         </GlassCard>
@@ -129,7 +129,7 @@ export const RepDashboard: React.FC<RepDashboardProps> = ({ onNavigate }) => {
           <strong className="text-2xl font-black text-white text-glow-pink font-mono">
             ${getCustodyValue().toLocaleString()}
           </strong>
-          <div className="absolute top-3 right-3 text-neon-pink/20">
+          <div className="card-icon-badge text-neon-pink/20">
             <PackageOpen className="w-6 h-6" />
           </div>
         </GlassCard>
