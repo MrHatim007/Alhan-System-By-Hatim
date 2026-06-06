@@ -53,7 +53,7 @@ const AppContent: React.FC = () => {
     setLanguage(language === 'en' ? 'ar' : 'en');
   };
 
-  // --- 1. REPRESENTATIVE INTERFACE (MOBILE-FIRST) ---
+  // --- 1. REPRESENTATIVE INTERFACE (RESPONSIVE) ---
   if (isRep) {
     const renderRepContent = () => {
       switch (activeTab) {
@@ -69,83 +69,188 @@ const AppContent: React.FC = () => {
     };
 
     return (
-      <div className="rep-container flex flex-col min-h-screen bg-slate-950 pb-16">
+      <div className="admin-container flex h-screen bg-slate-950 overflow-hidden rep-responsive-container">
         
-        {/* Mobile Header */}
-        <header className="rep-header flex justify-between items-center">
-          <span className="text-neon-cyan font-black tracking-tight text-sm uppercase">
-            {t('appName')}
-          </span>
+        {/* Sidebar - Desktop only (hidden on mobile via index.css) */}
+        <aside className="sidebar flex flex-col rep-sidebar">
+          {/* App Title */}
+          <div className="sidebar-brand">
+            <h1 className="text-xl font-black tracking-tight text-white text-glow-cyan uppercase">
+              {t('appName')}
+            </h1>
+            <div className="text-[10px] text-text-muted mt-1 uppercase font-bold tracking-wider">
+              {t('roleRep')}
+            </div>
+          </div>
 
-          <div className="flex items-center gap-3">
-            {/* DB Connection state */}
-            <div className="flex items-center gap-1-5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[10px]">
-              <Database className={`w-3 h-3 ${isFirebase ? 'text-neon-green' : 'text-neon-cyan animate-pulse'}`} />
-              <span className="text-text-secondary">
-                {isFirebase ? 'Cloud' : 'Mock'}
-              </span>
+          {/* Menu Items */}
+          <nav className="sidebar-nav flex flex-col gap-1-5 custom-scrollbar">
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                activeTab === 'dashboard'
+                  ? 'bg-neon-cyan/15 border border-neon-cyan/30 text-neon-cyan text-glow-cyan font-bold'
+                  : 'bg-transparent border border-transparent text-text-secondary hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span>{t('menuDashboard')}</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('pos')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                activeTab === 'pos'
+                  ? 'bg-neon-cyan/15 border border-neon-cyan/30 text-neon-cyan text-glow-cyan font-bold'
+                  : 'bg-transparent border border-transparent text-text-secondary hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <ShoppingCart className="w-4 h-4" />
+              <span>POS</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('custody')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                activeTab === 'custody'
+                  ? 'bg-neon-cyan/15 border border-neon-cyan/30 text-neon-cyan text-glow-cyan font-bold'
+                  : 'bg-transparent border border-transparent text-text-secondary hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Package className="w-4 h-4" />
+              <span>{t('vanInventoryList')}</span>
+            </button>
+          </nav>
+
+          {/* Footer info & Logout */}
+          <div className="sidebar-footer flex flex-col gap-3">
+            <div className="flex items-center gap-2-5">
+              <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs font-bold text-white">
+                {user.name.charAt(0)}
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs font-semibold text-white truncate">{user.name}</span>
+                <span className="text-[10px] text-text-muted truncate">{user.email}</span>
+              </div>
             </div>
 
-            {/* Language toggle */}
-            <button 
-              onClick={toggleLanguage}
-              className="p-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:text-white"
-            >
-              <Globe className="w-4 h-4 text-neon-pink" />
-            </button>
-
-            {/* Logout */}
-            <button
-              onClick={logout}
-              className="p-1.5 rounded-lg bg-neon-pink/10 border border-neon-pink/20 text-neon-pink"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={toggleLanguage}
+                className="flex-1 btn-secondary py-1.5 text-xs flex items-center justify-center gap-1"
+              >
+                <Globe className="w-3.5 h-3.5" />
+                <span>{t('toggleLanguage')}</span>
+              </button>
+              <button
+                onClick={logout}
+                className="flex-1 btn-primary-pink py-1.5 text-xs flex items-center justify-center gap-1"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>{t('logout')}</span>
+              </button>
+            </div>
           </div>
-        </header>
+        </aside>
 
-        {/* Mobile main body */}
-        <main className="rep-content flex-1 p-4 overflow-y-auto">
-          {renderRepContent()}
-        </main>
-
-        {/* Mobile bottom tab bar */}
-        <nav className="rep-navbar flex justify-around py-2">
+        {/* Main Panel Content Area */}
+        <div className="main-panel flex flex-col">
           
-          {/* Dashboard Tab */}
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`flex flex-col items-center gap-1 py-1 px-3 ${
-              activeTab === 'dashboard' ? 'text-neon-cyan' : 'text-text-muted hover:text-white'
-            }`}
-          >
-            <LayoutDashboard className="w-5 h-5" />
-            <span className="text-[9px] font-bold">{t('menuDashboard')}</span>
-          </button>
+          {/* Top Header bar - Desktop only */}
+          <header className="header-bar rep-desktop-header justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs">
+                <Database className={`w-3.5 h-3.5 ${isFirebase ? 'text-neon-green' : 'text-neon-cyan animate-pulse'}`} />
+                <span className="text-text-secondary text-[11px] font-semibold">
+                  {isFirebase ? t('connectingFirebase') : t('runningMockMode')}
+                </span>
+              </div>
+            </div>
 
-          {/* POS Tab */}
-          <button
-            onClick={() => setActiveTab('pos')}
-            className={`flex flex-col items-center gap-1 py-1 px-3 ${
-              activeTab === 'pos' ? 'text-neon-cyan' : 'text-text-muted hover:text-white'
-            }`}
-          >
-            <ShoppingCart className="w-5 h-5" />
-            <span className="text-[9px] font-bold">POS</span>
-          </button>
+            <div className="flex items-center gap-4">
+              <span className="text-xs text-text-secondary">
+                {t('activeUser')}: <strong className="text-white">{user.name}</strong>
+              </span>
+            </div>
+          </header>
 
-          {/* Custody check Tab */}
-          <button
-            onClick={() => setActiveTab('custody')}
-            className={`flex flex-col items-center gap-1 py-1 px-3 ${
-              activeTab === 'custody' ? 'text-neon-cyan' : 'text-text-muted hover:text-white'
-            }`}
-          >
-            <Package className="w-5 h-5" />
-            <span className="text-[9px] font-bold">Van Stock</span>
-          </button>
+          {/* Sticky Mobile Header - Mobile/Tablet only */}
+          <header className="rep-header rep-mobile-header justify-between items-center">
+            <span className="text-neon-cyan font-black tracking-tight text-sm uppercase">
+              {t('appName')}
+            </span>
 
-        </nav>
+            <div className="flex items-center gap-3">
+              {/* DB Connection state */}
+              <div className="flex items-center gap-1-5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[10px]">
+                <Database className={`w-3 h-3 ${isFirebase ? 'text-neon-green' : 'text-neon-cyan animate-pulse'}`} />
+                <span className="text-text-secondary">
+                  {isFirebase ? 'Cloud' : 'Mock'}
+                </span>
+              </div>
+
+              {/* Language toggle */}
+              <button 
+                onClick={toggleLanguage}
+                className="p-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:text-white"
+              >
+                <Globe className="w-4 h-4 text-neon-pink" />
+              </button>
+
+              {/* Logout */}
+              <button
+                onClick={logout}
+                className="p-1.5 rounded-lg bg-neon-pink/10 border border-neon-pink/20 text-neon-pink"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
+          </header>
+
+          {/* Content Body */}
+          <main className="content-area rep-content custom-scrollbar">
+            {renderRepContent()}
+          </main>
+
+          {/* Mobile bottom tab bar - Mobile/Tablet only */}
+          <nav className="rep-navbar rep-mobile-navbar justify-around py-2">
+            
+            {/* Dashboard Tab */}
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`flex flex-col items-center gap-1 py-1 px-3 ${
+                activeTab === 'dashboard' ? 'text-neon-cyan' : 'text-text-muted hover:text-white'
+              }`}
+            >
+              <LayoutDashboard className="w-5 h-5" />
+              <span className="text-[9px] font-bold">{t('menuDashboard')}</span>
+            </button>
+
+            {/* POS Tab */}
+            <button
+              onClick={() => setActiveTab('pos')}
+              className={`flex flex-col items-center gap-1 py-1 px-3 ${
+                activeTab === 'pos' ? 'text-neon-cyan' : 'text-text-muted hover:text-white'
+              }`}
+            >
+              <ShoppingCart className="w-5 h-5" />
+              <span className="text-[9px] font-bold">POS</span>
+            </button>
+
+            {/* Custody check Tab */}
+            <button
+              onClick={() => setActiveTab('custody')}
+              className={`flex flex-col items-center gap-1 py-1 px-3 ${
+                activeTab === 'custody' ? 'text-neon-cyan' : 'text-text-muted hover:text-white'
+              }`}
+            >
+              <Package className="w-5 h-5" />
+              <span className="text-[9px] font-bold">Van Stock</span>
+            </button>
+
+          </nav>
+        </div>
+
       </div>
     );
   }

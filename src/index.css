@@ -295,6 +295,38 @@ body.rtl-layout {
   height: 56px !important;
 }
 
+/* Responsive Rep Layout Overrides */
+@media (min-width: 1024px) {
+  .rep-mobile-header {
+    display: none !important;
+  }
+  .rep-mobile-navbar {
+    display: none !important;
+  }
+  .rep-desktop-header {
+    display: flex !important;
+  }
+  .rep-content {
+    padding: 24px !important;
+    height: calc(100vh - 64px) !important; /* height minus header */
+  }
+}
+
+@media (max-width: 1023px) {
+  .rep-desktop-header {
+    display: none !important;
+  }
+  .rep-mobile-header {
+    display: flex !important;
+  }
+  .rep-mobile-navbar {
+    display: flex !important;
+  }
+  .rep-content {
+    padding-bottom: 72px !important; /* Ensure content clears fixed navbar */
+  }
+}
+
 
 /* Custom Scrollbars */
 body, .custom-scrollbar {

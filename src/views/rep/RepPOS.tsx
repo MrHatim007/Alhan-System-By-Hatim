@@ -13,7 +13,7 @@ import {
 import { ShoppingCart, Camera, AlertTriangle, Plus, Trash2, Printer, ChevronRight } from 'lucide-react';
 
 export const RepPOS: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const { user } = useAuth();
 
   const [clients, setClients] = useState<ClientRecord[]>([]);
@@ -57,9 +57,9 @@ export const RepPOS: React.FC = () => {
       const matched = clients.find(c => c.code.toUpperCase() === decodedText.toUpperCase());
       if (matched) {
         setSelectedClientId(matched.id);
-        alert(`${t('barcodeFound')} Client: ${matched.nameEn}`);
+        alert(`${t('barcodeFound')} ${t('clientScanned')} ${language === 'ar' ? matched.nameAr : matched.nameEn}`);
       } else {
-        alert('Scanned code did not match any client.');
+        alert(t('scannedCodeNoClient'));
       }
     } else {
       // Find matching product by SKU in van custody
@@ -67,9 +67,9 @@ export const RepPOS: React.FC = () => {
       const matchedItem = activeCustody.items.find(item => item.sku.toUpperCase() === decodedText.toUpperCase());
       if (matchedItem) {
         setCurrProductId(matchedItem.productId);
-        alert(`${t('barcodeFound')} Product: ${matchedItem.nameEn}`);
+        alert(`${t('barcodeFound')} ${t('productScanned')} ${language === 'ar' ? matchedItem.nameAr : matchedItem.nameEn}`);
       } else {
-        alert('Scanned code did not match any item in your custody.');
+        alert(t('scannedCodeNoItem'));
       }
     }
   };
@@ -88,7 +88,7 @@ export const RepPOS: React.FC = () => {
     const cartQty = existingIndex !== -1 ? cartItems[existingIndex].quantity : 0;
 
     if (cartQty + currQty > remainingVanStock) {
-      alert(`${t('insufficientVanStock')} Max remaining is ${remainingVanStock}`);
+      alert(`${t('insufficientVanStock')} ${t('maxRemainingIs')} ${remainingVanStock}`);
       return;
     }
 
@@ -186,7 +186,7 @@ export const RepPOS: React.FC = () => {
       setPaidAmount(0);
       setSaleType('cash');
     } catch (err) {
-      alert('Error creating invoice');
+      alert(t('errorCreatingInvoice'));
     }
   };
 
@@ -195,17 +195,17 @@ export const RepPOS: React.FC = () => {
       <div className="flex flex-col gap-6 pb-8 items-center">
         <GlassCard glowColor="green" className="w-full max-w-sm p-6 bg-slate-950 border border-slate-800 text-white text-center">
           <div className="mb-4">
-            <span className="badge badge-paid px-4 py-1.5 font-bold animate-bounce mb-3">Invoice Created Successfully!</span>
+            <span className="badge badge-paid px-4 py-1.5 font-bold animate-bounce mb-3">{t('invoiceCreatedSuccess')}</span>
             <h3 className="text-lg font-bold uppercase tracking-wider text-neon-green">
               {t('receiptTitle')}
             </h3>
-            <p className="text-xs text-text-secondary">{completedInvoice.clientNameEn}</p>
+            <p className="text-xs text-text-secondary">{language === 'ar' ? completedInvoice.clientNameAr : completedInvoice.clientNameEn}</p>
           </div>
 
-          <div className="border-y border-slate-900 py-3 my-4 text-xs text-text-secondary flex flex-col gap-1 text-left">
-            <div>Invoice Amount: <strong className="text-white font-mono">${completedInvoice.totalAmount}</strong></div>
-            <div>Cash Received: <strong className="text-neon-green font-mono">${completedInvoice.paidAmount}</strong></div>
-            <div>Remaining Debt: <strong className="text-neon-pink font-mono">${completedInvoice.debtAmount}</strong></div>
+          <div className={`border-y border-slate-900 py-3 my-4 text-xs text-text-secondary flex flex-col gap-1 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+            <div>{t('invoiceAmount')}: <strong className="text-white font-mono">${completedInvoice.totalAmount}</strong></div>
+            <div>{t('cashReceived')}: <strong className="text-neon-green font-mono">${completedInvoice.paidAmount}</strong></div>
+            <div>{t('remainingDebt')}: <strong className="text-neon-pink font-mono">${completedInvoice.debtAmount}</strong></div>
           </div>
 
           <div className="flex gap-3 mt-6">
@@ -214,13 +214,13 @@ export const RepPOS: React.FC = () => {
               className="btn-secondary flex-1 flex items-center justify-center gap-1 py-2 text-xs"
             >
               <Printer className="w-4 h-4" />
-              Print Receipt
+              {t('printReceipt')}
             </button>
             <button
               onClick={() => setCompletedInvoice(null)}
               className="btn-primary-cyan flex-1 py-2 text-xs font-bold"
             >
-              Back to POS
+              {t('backToPOS')}
             </button>
           </div>
         </GlassCard>
@@ -248,7 +248,7 @@ export const RepPOS: React.FC = () => {
           className="btn-primary-cyan flex items-center gap-1.5 py-1.5 px-3 text-xs"
         >
           <Camera className="w-4 h-4" />
-          Scan QR
+          {t('scanQR')}
         </button>
       </div>
 
@@ -261,10 +261,10 @@ export const RepPOS: React.FC = () => {
             onChange={(e) => setSelectedClientId(e.target.value)}
             className="text-sm"
           >
-            <option value="">-- Choose Cafe --</option>
+            <option value="">{t('chooseCafe')}</option>
             {clients.map(c => (
               <option key={c.id} value={c.id}>
-                {c.nameEn} (Debt: ${c.outstandingDebt} / Limit: ${c.creditLimit})
+                {language === 'ar' ? c.nameAr : c.nameEn} ({t('debtLabel')}: ${c.outstandingDebt} / {t('limitLabel')}: ${c.creditLimit})
               </option>
             ))}
           </select>
@@ -273,15 +273,15 @@ export const RepPOS: React.FC = () => {
         {selectedClient && (
           <div className="p-3 bg-slate-900 border border-slate-800 rounded-lg text-xs flex flex-col gap-1 text-text-secondary">
             <div className="flex justify-between">
-              <span>Outstanding Debt:</span>
+              <span>{t('outstandingDebtLabel')}</span>
               <strong className="text-neon-pink font-mono">${selectedClient.outstandingDebt}</strong>
             </div>
             <div className="flex justify-between">
-              <span>Credit Limit Capacity:</span>
+              <span>{t('creditLimitCapacityLabel')}</span>
               <strong className="text-white font-mono">${selectedClient.creditLimit}</strong>
             </div>
             <div className="flex justify-between border-t border-slate-850 pt-1.5 mt-1">
-              <span>Available Credit Room:</span>
+              <span>{t('availableCreditRoomLabel')}</span>
               <strong className="text-neon-cyan font-mono">${Math.max(0, selectedClient.creditLimit - selectedClient.outstandingDebt)}</strong>
             </div>
           </div>
@@ -292,7 +292,7 @@ export const RepPOS: React.FC = () => {
       {selectedClientId && activeCustody && (
         <GlassCard className="p-4 flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold text-neon-cyan uppercase">Add Products from Van</h4>
+            <h4 className="text-xs font-bold text-neon-cyan uppercase">{t('addProductsFromVan')}</h4>
             <button
               type="button"
               onClick={() => {
@@ -302,24 +302,24 @@ export const RepPOS: React.FC = () => {
               className="p-1 rounded bg-white/5 border border-white/10 hover:bg-white/10 text-slate-400 hover:text-white flex items-center gap-1 text-[10px]"
             >
               <Camera className="w-3.5 h-3.5" />
-              Scan Barcode
+              {t('scanBarcode')}
             </button>
           </div>
 
           <form onSubmit={handleAddToCart} className="flex flex-col gap-3">
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] text-text-secondary uppercase">Select Product</label>
+              <label className="text-[10px] text-text-secondary uppercase">{t('selectProduct')}</label>
               <select
                 value={currProductId}
                 onChange={(e) => setCurrProductId(e.target.value)}
                 className="text-sm"
               >
-                <option value="">-- Choose Item --</option>
+                <option value="">{t('chooseItem')}</option>
                 {activeCustody.items.map(item => {
                   const remaining = item.qtyTransferred - item.qtySold - item.qtyReturned;
                   return (
                     <option key={item.productId} value={item.productId} disabled={remaining <= 0}>
-                      {item.sku} - {item.nameEn} ({remaining} in van)
+                      {item.sku} - {language === 'ar' ? item.nameAr : item.nameEn} ({remaining} {t('inVan')})
                     </option>
                   );
                 })}
@@ -328,7 +328,7 @@ export const RepPOS: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-3 items-end">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-text-secondary uppercase">Qty to Sell</label>
+                <label className="text-[10px] text-text-secondary uppercase">{t('qtyToSell')}</label>
                 <input
                   type="number"
                   min={1}
@@ -341,7 +341,7 @@ export const RepPOS: React.FC = () => {
                 disabled={!currProductId}
                 className="btn-primary-cyan py-3 text-xs"
               >
-                Add to Cart
+                {t('addToCart')}
               </button>
             </div>
           </form>
@@ -351,7 +351,7 @@ export const RepPOS: React.FC = () => {
       {/* POS Cart items table */}
       {cartItems.length > 0 && activeCustody && (
         <GlassCard glowColor="cyan" className="p-4 flex flex-col gap-3">
-          <h4 className="text-xs font-bold text-white uppercase">Invoice Cart</h4>
+          <h4 className="text-xs font-bold text-white uppercase">{t('invoiceCart')}</h4>
           
           <div className="flex flex-col gap-2 max-h-[160px] overflow-y-auto custom-scrollbar">
             {cartItems.map((item, idx) => {
@@ -360,8 +360,8 @@ export const RepPOS: React.FC = () => {
               return (
                 <div key={item.productId} className="flex justify-between items-center py-2 border-b border-slate-900 text-xs">
                   <div className="flex flex-col">
-                    <span className="font-semibold text-white">{custodyItem.nameEn}</span>
-                    <span className="text-[10px] text-text-secondary">Qty: {item.quantity} x ${price}</span>
+                    <span className="font-semibold text-white">{language === 'ar' ? custodyItem.nameAr : custodyItem.nameEn}</span>
+                    <span className="text-[10px] text-text-secondary">{t('qtyCartLabel')}: {item.quantity} x ${price}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="font-bold font-mono text-white">${item.quantity * price}</span>
@@ -378,14 +378,14 @@ export const RepPOS: React.FC = () => {
           </div>
 
           <div className="flex justify-between items-center border-t border-slate-900 pt-3">
-            <span className="text-xs text-text-secondary uppercase">Invoice Total:</span>
+            <span className="text-xs text-text-secondary uppercase">{t('invoiceTotal')}</span>
             <strong className="text-lg font-black text-white font-mono">${getCartTotal()}</strong>
           </div>
 
           {/* Payment parameters form */}
           <form onSubmit={handleCheckout} className="flex flex-col gap-3 border-t border-slate-900 pt-3 mt-1">
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] text-text-secondary uppercase">Payment Type</label>
+              <label className="text-[10px] text-text-secondary uppercase">{t('paymentTypeLabel')}</label>
               <select
                 value={saleType}
                 onChange={(e) => {
@@ -401,7 +401,7 @@ export const RepPOS: React.FC = () => {
 
             {saleType === 'credit' && (
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-text-secondary uppercase">Partial Cash Paid ($)</label>
+                <label className="text-[10px] text-text-secondary uppercase">{t('partialCashPaid')}</label>
                 <input
                   type="number"
                   min={0}
@@ -410,7 +410,7 @@ export const RepPOS: React.FC = () => {
                   onChange={(e) => setPaidAmount(Math.min(getCartTotal(), Math.max(0, Number(e.target.value))))}
                 />
                 <span className="text-[9px] text-text-secondary">
-                  Remaining amount charged to client credit: ${getCartTotal() - paidAmount}
+                  {t('remainingChargedToCredit')} ${getCartTotal() - paidAmount}
                 </span>
               </div>
             )}

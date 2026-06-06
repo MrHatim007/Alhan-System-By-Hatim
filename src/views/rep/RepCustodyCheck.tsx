@@ -16,7 +16,7 @@ import {
 import { PackageOpen, AlertTriangle, ArrowLeftRight, Save } from 'lucide-react';
 
 export const RepCustodyCheck: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const { user } = useAuth();
   
   const [custodies, setCustodies] = useState<CustodyRecord[]>([]);
@@ -88,7 +88,7 @@ export const RepCustodyCheck: React.FC = () => {
       
       alert(t('returnSuccess'));
     } catch (err) {
-      alert('Error logging returns');
+      alert(t('errorLoggingReturns'));
     }
   };
 
@@ -117,8 +117,8 @@ export const RepCustodyCheck: React.FC = () => {
           
           {/* Metadata */}
           <GlassCard className="p-4 flex justify-between text-xs text-text-secondary">
-            <span>Date Opened: <strong className="text-white font-mono">{activeCustody.date}</strong></span>
-            <span>Items Count: <strong className="text-white font-mono">{activeCustody.items.length}</strong></span>
+            <span>{t('dateOpened')}: <strong className="text-white font-mono">{activeCustody.date}</strong></span>
+            <span>{t('itemsCount')}: <strong className="text-white font-mono">{activeCustody.items.length}</strong></span>
           </GlassCard>
 
           {/* Table */}
@@ -129,16 +129,16 @@ export const RepCustodyCheck: React.FC = () => {
                 return (
                   <div key={item.productId} className="flex justify-between items-center py-2.5 border-b border-slate-900 text-xs">
                     <div className="flex flex-col gap-0.5">
-                      <span className="font-semibold text-white">{item.nameEn}</span>
+                      <span className="font-semibold text-white">{language === 'ar' ? item.nameAr : item.nameEn}</span>
                       <span className="text-[10px] text-text-secondary font-mono">{item.sku}</span>
                     </div>
                     <div className="flex gap-4 text-right">
                       <div className="flex flex-col">
-                        <span className="text-[10px] text-text-secondary">Sold / Sent</span>
+                        <span className="text-[10px] text-text-secondary">{t('soldSent')}</span>
                         <span className="font-mono text-white">{item.qtySold} / {item.qtyTransferred}</span>
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[10px] text-neon-cyan font-bold">Remaining</span>
+                        <span className="text-[10px] text-neon-cyan font-bold">{t('remaining')}</span>
                         <strong className="font-mono text-neon-cyan font-bold text-sm">{remaining}</strong>
                       </div>
                     </div>
@@ -152,7 +152,7 @@ export const RepCustodyCheck: React.FC = () => {
       ) : (
         <GlassCard className="p-10 text-center flex flex-col items-center justify-center">
           <PackageOpen className="w-12 h-12 text-text-muted mb-3" />
-          <p className="text-text-secondary text-sm">No active custody. Van stock is empty.</p>
+          <p className="text-text-secondary text-sm">{t('noActiveCustodyVanEmpty')}</p>
         </GlassCard>
       )}
 
@@ -169,19 +169,19 @@ export const RepCustodyCheck: React.FC = () => {
               
               {/* Select Client */}
               <div className="flex flex-col gap-1">
-                <label className="text-xs text-text-secondary">Select Client returning goods</label>
+                <label className="text-xs text-text-secondary">{t('selectClientReturningGoods')}</label>
                 <select
                   value={selectedClientId}
                   onChange={(e) => setSelectedClientId(e.target.value)}
                   required
                   className="text-sm"
                 >
-                  <option value="">-- Choose Cafe --</option>
+                  <option value="">{t('chooseCafe')}</option>
                   {clients
                     .filter(c => c.outstandingDebt > 0)
                     .map(c => (
                       <option key={c.id} value={c.id}>
-                        {c.nameEn} (Debt: ${c.outstandingDebt})
+                        {language === 'ar' ? c.nameAr : c.nameEn} ({t('debtLabel')}: ${c.outstandingDebt})
                       </option>
                     ))}
                 </select>
@@ -189,17 +189,17 @@ export const RepCustodyCheck: React.FC = () => {
 
               {/* Select Product */}
               <div className="flex flex-col gap-1">
-                <label className="text-xs text-text-secondary">Select Product being returned</label>
+                <label className="text-xs text-text-secondary">{t('selectProductBeingReturned')}</label>
                 <select
                   value={selectedProductId}
                   onChange={(e) => setSelectedProductId(e.target.value)}
                   required
                   className="text-sm"
                 >
-                  <option value="">-- Select Product --</option>
+                  <option value="">{t('selectProductOption')}</option>
                   {activeCustody.items.map(item => (
                     <option key={item.productId} value={item.productId}>
-                      {item.sku} - {item.nameEn} (Sold: {item.qtySold})
+                      {item.sku} - {language === 'ar' ? item.nameAr : item.nameEn} ({t('soldLabel')}: {item.qtySold})
                     </option>
                   ))}
                 </select>
@@ -207,7 +207,7 @@ export const RepCustodyCheck: React.FC = () => {
 
               {/* Qty */}
               <div className="flex flex-col gap-1">
-                <label className="text-xs text-text-secondary">Quantity Returned</label>
+                <label className="text-xs text-text-secondary">{t('quantityReturned')}</label>
                 <input
                   type="number"
                   min={1}

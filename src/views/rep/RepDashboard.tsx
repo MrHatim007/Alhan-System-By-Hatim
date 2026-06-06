@@ -8,14 +8,14 @@ import {
   CustodyRecord,
   InvoiceRecord 
 } from '../../services/dbService';
-import { ShoppingCart, PackageOpen, HelpCircle, DollarSign, Award, ChevronRight } from 'lucide-react';
+import { ShoppingCart, PackageOpen, HelpCircle, DollarSign, Award, ChevronRight, ChevronLeft } from 'lucide-react';
 
 interface RepDashboardProps {
   onNavigate: (tab: string) => void;
 }
 
 export const RepDashboard: React.FC<RepDashboardProps> = ({ onNavigate }) => {
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const { user } = useAuth();
   
   const [custodies, setCustodies] = useState<CustodyRecord[]>([]);
@@ -68,6 +68,8 @@ export const RepDashboard: React.FC<RepDashboardProps> = ({ onNavigate }) => {
       .reduce((sum, inv) => sum + inv.paidAmount, 0);
   };
 
+  const ChevronIcon = isRTL ? ChevronLeft : ChevronRight;
+
   return (
     <div className="flex flex-col gap-5 pb-8">
       
@@ -86,7 +88,7 @@ export const RepDashboard: React.FC<RepDashboardProps> = ({ onNavigate }) => {
       {!activeCustody && (
         <div className="p-4 rounded-xl bg-neon-pink/10 border border-neon-pink/20 text-neon-pink text-xs leading-relaxed flex items-center gap-3">
           <HelpCircle className="w-5 h-5 flex-shrink-0" />
-          <span>You currently do not have an active stock custody assigned. Please contact the Warehouse Manager to allocate stock to your van before starting sales.</span>
+          <span>{t('noActiveCustodyAlert')}</span>
         </div>
       )}
 
@@ -122,7 +124,7 @@ export const RepDashboard: React.FC<RepDashboardProps> = ({ onNavigate }) => {
         {/* Remaining Custody Value */}
         <GlassCard glowColor="pink" className="p-4 col-span-2 relative">
           <span className="text-[10px] text-text-secondary font-bold uppercase block mb-1">
-            {t('todayCustody')} (Estimated)
+            {t('todayCustody')} ({t('estimated')})
           </span>
           <strong className="text-2xl font-black text-white text-glow-pink font-mono">
             ${getCustodyValue().toLocaleString()}
@@ -137,7 +139,7 @@ export const RepDashboard: React.FC<RepDashboardProps> = ({ onNavigate }) => {
       {/* Quick Actions Panel */}
       <div className="flex flex-col gap-3">
         <h4 className="text-xs font-bold text-neon-cyan uppercase tracking-wider pl-1">
-          Quick Actions
+          {t('quickActions')}
         </h4>
 
         <div 
@@ -151,11 +153,11 @@ export const RepDashboard: React.FC<RepDashboardProps> = ({ onNavigate }) => {
           <div className="flex items-center gap-3">
             <ShoppingCart className="w-5 h-5 text-neon-cyan" />
             <div className="flex flex-col">
-              <span className="font-bold text-sm">Start New Sale (POS)</span>
-              <span className="text-[10px] text-text-secondary">Scan customer QR & checkout immediately</span>
+              <span className="font-bold text-sm">{t('startNewSale')}</span>
+              <span className="text-[10px] text-text-secondary">{t('scanCustomerAndCheckout')}</span>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-text-secondary" />
+          <ChevronIcon className="w-5 h-5 text-text-secondary" />
         </div>
 
         <div 
@@ -165,11 +167,11 @@ export const RepDashboard: React.FC<RepDashboardProps> = ({ onNavigate }) => {
           <div className="flex items-center gap-3">
             <PackageOpen className="w-5 h-5 text-neon-pink" />
             <div className="flex flex-col">
-              <span className="font-bold text-sm">Check Van Stock</span>
-              <span className="text-[10px] text-text-secondary">View inventory, log returns, audit counts</span>
+              <span className="font-bold text-sm">{t('vanInventoryList')}</span>
+              <span className="text-[10px] text-text-secondary">{t('checkVanStockDesc')}</span>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-text-secondary" />
+          <ChevronIcon className="w-5 h-5 text-text-secondary" />
         </div>
       </div>
 
