@@ -726,7 +726,8 @@ body.rtl-layout .dense-table {
 .z-50 { z-index: 50 !important; }
 
 /* RTL input mirroring overrides */
-body.rtl-layout .left-3 {
+body.rtl-layout .relative > svg.absolute,
+body.rtl-layout .relative > button.absolute {
   left: auto !important;
   right: 12px !important;
 }
