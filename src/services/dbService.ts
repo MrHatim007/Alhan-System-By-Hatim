@@ -201,6 +201,17 @@ export const resetMockDatabase = () => {
   triggerUpdate('custodies', mockCustodies);
 };
 
+// Force clear old local mock database data if not yet migrated to v2 (empty state)
+if (localStorage.getItem('alhan_mock_db_cleared_v2') !== 'true') {
+  localStorage.removeItem('alhan_mock_users');
+  localStorage.removeItem('alhan_mock_products');
+  localStorage.removeItem('alhan_mock_clients');
+  localStorage.removeItem('alhan_mock_expenses');
+  localStorage.removeItem('alhan_mock_invoices');
+  localStorage.removeItem('alhan_mock_custodies');
+  localStorage.setItem('alhan_mock_db_cleared_v2', 'true');
+}
+
 // Ensure collections exist on launch
 getLocalCollection('users', mockUsers);
 getLocalCollection('products', mockProducts);
