@@ -98,6 +98,7 @@ export interface InvoiceRecord {
   debtAmount: number;
   status: 'paid' | 'unpaid' | 'partially_paid';
   custodyId?: string;
+  gps?: { lat: number; lng: number } | null;
 }
 
 export interface ExpenseRecord {

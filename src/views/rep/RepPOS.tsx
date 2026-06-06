@@ -6,9 +6,11 @@ import { QRScanner } from '../../components/QRScanner';
 import { 
   subscribeToClients, 
   subscribeToCustodies, 
+  subscribeToInvoices,
   addInvoice,
   ClientRecord,
-  CustodyRecord
+  CustodyRecord,
+  InvoiceRecord
 } from '../../services/dbService';
 import { ShoppingCart, Camera, AlertTriangle, Plus, Trash2, Printer, ChevronRight } from 'lucide-react';
 
@@ -18,6 +20,7 @@ export const RepPOS: React.FC = () => {
 
   const [clients, setClients] = useState<ClientRecord[]>([]);
   const [custodies, setCustodies] = useState<CustodyRecord[]>([]);
+  const [invoices, setInvoices] = useState<InvoiceRecord[]>([]);
 
   // Selection states
   const [selectedClientId, setSelectedClientId] = useState('');
@@ -33,21 +36,81 @@ export const RepPOS: React.FC = () => {
   const [currProductId, setCurrProductId] = useState('');
   const [currQty, setCurrQty] = useState(1);
 
+  // GPS State
+  const [gpsCoordinates, setGpsCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+
   // Receipt printable state
   const [completedInvoice, setCompletedInvoice] = useState<any | null>(null);
 
   useEffect(() => {
     const unsubClients = subscribeToClients(setClients);
     const unsubCust = subscribeToCustodies(setCustodies);
+    const unsubInvoices = subscribeToInvoices(setInvoices);
 
     return () => {
       unsubClients();
       unsubCust();
+      unsubInvoices();
     };
   }, []);
 
+  // Capture GPS on client selection
+  useEffect(() => {
+    if (!selectedClientId) {
+      setGpsCoordinates(null);
+      return;
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setGpsCoordinates({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (err) => {
+          console.warn("GPS location access denied or unavailable:", err);
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    }
+  }, [selectedClientId]);
+
   const activeCustody = custodies.find(c => c.repId === user?.id && c.status === 'open');
   const selectedClient = clients.find(c => c.id === selectedClientId);
+
+  const getFavoriteProducts = () => {
+    if (!selectedClientId || !activeCustody) return [];
+    
+    // Count items purchased by this client historically
+    const productCounts: Record<string, number> = {};
+    invoices
+      .filter(inv => inv.clientId === selectedClientId)
+      .forEach(inv => {
+        inv.items.forEach(item => {
+          productCounts[item.productId] = (productCounts[item.productId] || 0) + item.quantity;
+        });
+      });
+
+    // Sort by count descending
+    const sortedProductIds = Object.keys(productCounts).sort((a, b) => productCounts[b] - productCounts[a]);
+
+    // Map to active custody items with remaining quantity
+    return sortedProductIds
+      .map(pId => {
+        const custodyItem = activeCustody.items.find(item => item.productId === pId);
+        if (!custodyItem) return null;
+        const remaining = custodyItem.qtyTransferred - custodyItem.qtySold - custodyItem.qtyReturned;
+        if (remaining <= 0) return null;
+        return {
+          ...custodyItem,
+          remaining
+        };
+      })
+      .filter(Boolean)
+      .slice(0, 3); // top 3 favorites
+  };
 
   const handleScanSuccess = (decodedText: string) => {
     setShowScanner(false);
@@ -169,7 +232,8 @@ export const RepPOS: React.FC = () => {
         paidAmount: finalPaid,
         debtAmount: finalDebt,
         status,
-        custodyId: activeCustody.id
+        custodyId: activeCustody.id,
+        gps: gpsCoordinates ? { lat: gpsCoordinates.lat, lng: gpsCoordinates.lng } : null
       };
 
       await addInvoice(invoiceData);
@@ -190,6 +254,14 @@ export const RepPOS: React.FC = () => {
     }
   };
 
+  const handleThermalPrint = () => {
+    document.body.classList.add('thermal-print-active');
+    window.print();
+    setTimeout(() => {
+      document.body.classList.remove('thermal-print-active');
+    }, 800);
+  };
+
   if (completedInvoice) {
     return (
       <div className="flex flex-col gap-6 pb-8 items-center">
@@ -206,24 +278,91 @@ export const RepPOS: React.FC = () => {
             <div>{t('invoiceAmount')}: <strong className="text-white font-mono">${completedInvoice.totalAmount}</strong></div>
             <div>{t('cashReceived')}: <strong className="text-neon-green font-mono">${completedInvoice.paidAmount}</strong></div>
             <div>{t('remainingDebt')}: <strong className="text-neon-pink font-mono">${completedInvoice.debtAmount}</strong></div>
+            {completedInvoice.gps && (
+              <div className="text-[10px] text-neon-cyan mt-1">
+                GPS: {completedInvoice.gps.lat.toFixed(5)}, {completedInvoice.gps.lng.toFixed(5)}
+              </div>
+            )}
           </div>
 
-          <div className="flex gap-3 mt-6">
-            <button
-              onClick={() => window.print()}
-              className="btn-secondary flex-1 flex items-center justify-center gap-1 py-2 text-xs"
-            >
-              <Printer className="w-4 h-4" />
-              {t('printReceipt')}
-            </button>
+          <div className="flex flex-col gap-2.5 mt-6 w-full">
+            <div className="flex gap-2">
+              <button
+                onClick={() => window.print()}
+                className="btn-secondary flex-1 flex items-center justify-center gap-1.5 py-2 text-xs"
+              >
+                <Printer className="w-4 h-4" />
+                {t('printReceipt')}
+              </button>
+              <button
+                onClick={handleThermalPrint}
+                className="btn-primary-cyan flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-bold"
+              >
+                <Printer className="w-4 h-4" />
+                {language === 'ar' ? 'طباعة حرارية' : 'Thermal (58mm)'}
+              </button>
+            </div>
             <button
               onClick={() => setCompletedInvoice(null)}
-              className="btn-primary-cyan flex-1 py-2 text-xs font-bold"
+              className="btn-primary-cyan w-full py-2.5 text-xs font-bold"
             >
               {t('backToPOS')}
             </button>
           </div>
         </GlassCard>
+
+        {/* Thermal Receipt Layout (optimized for print, hidden on screen) */}
+        <div className="thermal-receipt-container hidden">
+          <div className="text-center font-bold text-sm uppercase">{t('receiptTitle')}</div>
+          <div className="text-center text-[10px]">{t('shishaWholesale')}</div>
+          <div className="text-center text-[9px]">Tel: +971 4 000 0000</div>
+          <div>--------------------------------</div>
+          <div>No: {completedInvoice.invoiceNumber}</div>
+          <div>Date: {new Date(completedInvoice.date || Date.now()).toLocaleString()}</div>
+          <div>Client: {language === 'ar' ? completedInvoice.clientNameAr : completedInvoice.clientNameEn}</div>
+          <div>Rep: {completedInvoice.repName}</div>
+          <div>--------------------------------</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '8pt' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px dashed #000' }}>
+                <th style={{ textAlign: 'left' }}>Item</th>
+                <th style={{ textAlign: 'center' }}>Qty</th>
+                <th style={{ textAlign: 'right' }}>Price</th>
+                <th style={{ textAlign: 'right' }}>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {completedInvoice.items.map((item: any, idx: number) => (
+                <tr key={idx}>
+                  <td>{language === 'ar' ? item.nameAr : item.nameEn}</td>
+                  <td style={{ textAlign: 'center' }}>{item.quantity}</td>
+                  <td style={{ textAlign: 'right' }}>${item.unitPrice}</td>
+                  <td style={{ textAlign: 'right' }}>${item.total}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div>--------------------------------</div>
+          <div className="flex justify-between font-bold">
+            <span>TOTAL:</span>
+            <span>${completedInvoice.totalAmount}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>PAID:</span>
+            <span>${completedInvoice.paidAmount}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>DUE:</span>
+            <span>${completedInvoice.debtAmount}</span>
+          </div>
+          <div>--------------------------------</div>
+          {completedInvoice.gps && (
+            <div className="text-[8px] text-center">
+              GPS: {completedInvoice.gps.lat.toFixed(5)}, {completedInvoice.gps.lng.toFixed(5)}
+            </div>
+          )}
+          <div className="text-center mt-3 font-bold">*** THANK YOU ***</div>
+        </div>
       </div>
     );
   }
@@ -306,7 +445,35 @@ export const RepPOS: React.FC = () => {
             </button>
           </div>
 
-          <form onSubmit={handleAddToCart} className="flex flex-col gap-3">
+          {/* Quick Re-order Favorites Block */}
+          {getFavoriteProducts().length > 0 && (
+            <div className="flex flex-col gap-2 p-3 bg-slate-950/40 border border-slate-900 rounded-lg">
+              <span className="text-[10px] text-neon-cyan font-bold uppercase tracking-wider block mb-1">
+                {language === 'ar' ? '⭐ الطلب السريع / المفضلة للعميل' : '⭐ Quick Re-order / Client Favorites'}
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {getFavoriteProducts().map((fav: any) => (
+                  <button
+                    key={fav.productId}
+                    type="button"
+                    onClick={() => {
+                      setCurrProductId(fav.productId);
+                      setCurrQty(1);
+                    }}
+                    className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:border-neon-cyan/50 hover:bg-neon-cyan/10 text-xs text-white transition-all flex items-center gap-1.5"
+                  >
+                    <span className="font-semibold">{language === 'ar' ? fav.nameAr : fav.nameEn}</span>
+                    <span className="text-[9px] text-text-muted font-mono">{fav.sku}</span>
+                    <span className="px-1.5 py-0.5 rounded bg-neon-cyan/20 text-neon-cyan font-bold text-[8px] font-mono">
+                      {fav.remaining} {language === 'ar' ? 'متاح' : 'left'}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <form onSubmit={handleAddToCart} className="flex flex-col gap-3 mt-1">
             <div className="flex flex-col gap-1">
               <label className="text-[10px] text-text-secondary uppercase">{t('selectProduct')}</label>
               <select

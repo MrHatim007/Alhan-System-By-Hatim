@@ -16,7 +16,7 @@ import {
 import { DollarSign, Truck, AlertOctagon, ClipboardCheck, ClipboardX, Plus, ListCollapse } from 'lucide-react';
 
 export const FinanceClosing: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const { user } = useAuth();
   
   const [custodies, setCustodies] = useState<CustodyRecord[]>([]);
@@ -36,6 +36,38 @@ export const FinanceClosing: React.FC = () => {
   const [physicalCashInput, setPhysicalCashInput] = useState(0);
   const [returnedCounts, setReturnedCounts] = useState<Record<string, number>>({});
   const [closingNotes, setClosingNotes] = useState('');
+
+  const getItemPrice = (sku: string) => {
+    return sku.startsWith('SHI') ? 65 : sku.startsWith('COA') ? 43 : 10;
+  };
+
+  // Compute discrepancy variables if custody is selected
+  let expectedCash = 0;
+  let actualCash = 0;
+  let cashDiscrepancy = 0;
+  let expectedStockValue = 0;
+  let actualStockValue = 0;
+  let stockDiscrepancyValue = 0;
+  let netDiscrepancy = 0;
+
+  if (activeReconciliationCustody) {
+    expectedCash = activeReconciliationCustody.cashCollected;
+    actualCash = Number(physicalCashInput);
+    cashDiscrepancy = actualCash - expectedCash;
+
+    expectedStockValue = activeReconciliationCustody.items.reduce((sum, item) => {
+      const expectedRemaining = item.qtyTransferred - item.qtySold;
+      return sum + (expectedRemaining * getItemPrice(item.sku));
+    }, 0);
+
+    actualStockValue = activeReconciliationCustody.items.reduce((sum, item) => {
+      const actualCount = returnedCounts[item.productId] ?? (item.qtyTransferred - item.qtySold);
+      return sum + (actualCount * getItemPrice(item.sku));
+    }, 0);
+
+    stockDiscrepancyValue = actualStockValue - expectedStockValue;
+    netDiscrepancy = cashDiscrepancy + stockDiscrepancyValue;
+  }
 
   useEffect(() => {
     const unsubCustodies = subscribeToCustodies(setCustodies);
@@ -256,6 +288,84 @@ export const FinanceClosing: React.FC = () => {
                       </span>
                     )}
                   </div>
+                </div>
+
+                {/* Financial & Inventory Discrepancy Audit Engine */}
+                <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col gap-4">
+                  <h4 className="text-xs font-bold text-neon-cyan uppercase tracking-wider border-b border-slate-800 pb-2 flex justify-between items-center">
+                    <span>{language === 'ar' ? 'نظام احتساب العجز والزيادة (التقفيل المالي)' : 'Financial Discrepancy & Reconciliation Engine'}</span>
+                    <span className="badge badge-partial px-2 py-0.5 text-[10px]">Real-Time Audit</span>
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                    {/* Cash Audit Column */}
+                    <div className="flex flex-col gap-2 p-3 rounded bg-slate-950/40 border border-slate-900">
+                      <span className="font-bold text-text-secondary uppercase text-[10px]">{language === 'ar' ? 'تدقيق النقدية (Cash Audit)' : 'Cash Audit'}</span>
+                      <div className="flex justify-between">
+                        <span>{language === 'ar' ? 'النقد المتوقع (المبيعات):' : 'Expected Cash:'}</span>
+                        <span className="font-mono text-white">${expectedCash.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>{language === 'ar' ? 'النقد الفعلي المستلم:' : 'Actual Cash Handed Over:'}</span>
+                        <span className="font-mono text-white">${actualCash.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between border-t border-slate-900 pt-1.5 mt-0.5">
+                        <span className="font-bold">{language === 'ar' ? 'فارق النقدية:' : 'Cash Variance:'}</span>
+                        <span className={`font-mono font-bold ${cashDiscrepancy < 0 ? 'text-neon-pink' : cashDiscrepancy > 0 ? 'text-neon-green' : 'text-text-muted'}`}>
+                          {cashDiscrepancy > 0 ? `+${cashDiscrepancy}` : cashDiscrepancy}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Inventory Audit Column */}
+                    <div className="flex flex-col gap-2 p-3 rounded bg-slate-950/40 border border-slate-900">
+                      <span className="font-bold text-text-secondary uppercase text-[10px]">{language === 'ar' ? 'تدقيق المخزون (Stock Audit)' : 'Inventory Value Audit'}</span>
+                      <div className="flex justify-between">
+                        <span>{language === 'ar' ? 'قيمة البضاعة المتوقعة:' : 'Expected Stock Value:'}</span>
+                        <span className="font-mono text-white">${expectedStockValue.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>{language === 'ar' ? 'قيمة البضاعة الفعلية:' : 'Actual Counted Stock:'}</span>
+                        <span className="font-mono text-white">${actualStockValue.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between border-t border-slate-900 pt-1.5 mt-0.5">
+                        <span className="font-bold">{language === 'ar' ? 'فارق المخزون:' : 'Stock Variance:'}</span>
+                        <span className={`font-mono font-bold ${stockDiscrepancyValue < 0 ? 'text-neon-pink' : stockDiscrepancyValue > 0 ? 'text-neon-green' : 'text-text-muted'}`}>
+                          {stockDiscrepancyValue > 0 ? `+${stockDiscrepancyValue}` : stockDiscrepancyValue}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Total Net Assessment Column */}
+                    <div className="flex flex-col gap-2 p-3 rounded bg-slate-950/40 border border-slate-900">
+                      <span className="font-bold text-text-secondary uppercase text-[10px]">{language === 'ar' ? 'التقييم المالي الإجمالي' : 'Total Net Audit Assessment'}</span>
+                      <div className="flex justify-between">
+                        <span>{language === 'ar' ? 'إجمالي الأصول المتوقعة:' : 'Total Expected Assets:'}</span>
+                        <span className="font-mono text-white">${(expectedCash + expectedStockValue).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>{language === 'ar' ? 'إجمالي الأصول الفعلية:' : 'Total Actual Assets:'}</span>
+                        <span className="font-mono text-white">${(actualCash + actualStockValue).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between border-t border-slate-900 pt-1.5 mt-0.5 font-bold">
+                        <span>{language === 'ar' ? 'صافي العجز / الزيادة:' : 'Net Discrepancy Status:'}</span>
+                        <span className={`font-mono text-sm ${netDiscrepancy < 0 ? 'text-neon-pink' : netDiscrepancy > 0 ? 'text-neon-green' : 'text-neon-cyan'}`}>
+                          {netDiscrepancy < 0 
+                            ? `${netDiscrepancy} (${language === 'ar' ? 'عجز' : 'Deficit'})` 
+                            : netDiscrepancy > 0 
+                              ? `+${netDiscrepancy} (${language === 'ar' ? 'زيادة' : 'Surplus'})` 
+                              : `${language === 'ar' ? 'مطابق' : 'Reconciled'}`}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {netDiscrepancy < 0 && (
+                    <div className="flex items-center gap-2 p-2 rounded bg-neon-pink/10 border border-neon-pink/20 text-neon-pink text-[10px] font-bold">
+                      <AlertOctagon className="w-4 h-4 flex-shrink-0" />
+                      <span>{language === 'ar' ? 'تحذير: تم الكشف عن عجز مالي في عهدة المندوب. يرجى مراجعة الجرد الفعلي ومطابقة المبالغ.' : 'Warning: Financial deficit detected in representative custody. Please verify counted stock and cash before closure.'}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Stock reconciliation list */}

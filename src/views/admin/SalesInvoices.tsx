@@ -312,6 +312,19 @@ export const SalesInvoices: React.FC = () => {
               <div className="flex flex-col gap-1">
                 <span>{t('invoiceNum')}: <strong className="text-white font-mono">{selectedInvoice.invoiceNumber}</strong></span>
                 <span>{t('date')}: <strong className="text-white">{new Date(selectedInvoice.date).toLocaleString()}</strong></span>
+                {selectedInvoice.gps && (
+                  <span className="text-neon-cyan mt-1 flex items-center gap-1">
+                    GPS:
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${selectedInvoice.gps.lat},${selectedInvoice.gps.lng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline hover:text-white font-mono"
+                    >
+                      {selectedInvoice.gps.lat.toFixed(5)}, {selectedInvoice.gps.lng.toFixed(5)}
+                    </a>
+                  </span>
+                )}
               </div>
               <div className="flex flex-col gap-1 text-right">
                 <span>{t('client')}: <strong className="text-white">{selectedInvoice.clientNameEn}</strong></span>
