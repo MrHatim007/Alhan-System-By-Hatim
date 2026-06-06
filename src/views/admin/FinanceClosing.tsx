@@ -152,7 +152,7 @@ export const FinanceClosing: React.FC = () => {
             {t('menuFinance')}
           </h2>
           <p className="text-text-secondary text-sm">
-            Verify mandoob custody accounts, settle daily sales cash, log expenses.
+            {t('financeDesc')}
           </p>
         </div>
         <button
@@ -203,11 +203,11 @@ export const FinanceClosing: React.FC = () => {
           {/* Expenses Log Summary */}
           <GlassCard className="p-6">
             <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">
-              Recent General Expenses
+              {t('recentExpenses')}
             </h3>
             <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto custom-scrollbar">
               {expenses.length === 0 ? (
-                <p className="text-text-muted text-xs text-center py-4">No expenses recorded</p>
+                <p className="text-text-muted text-xs text-center py-4">{t('noExpenses')}</p>
               ) : (
                 expenses.map(exp => (
                   <div key={exp.id} className="p-3 rounded bg-slate-900 border border-slate-800 text-xs flex justify-between items-start">
@@ -230,7 +230,7 @@ export const FinanceClosing: React.FC = () => {
             <GlassCard glowColor="cyan" className="p-6">
               <h3 className="text-base font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
                 <ClipboardCheck className="w-5 h-5 text-neon-cyan" />
-                Reconciliation: {activeReconciliationCustody.repName} ({activeReconciliationCustody.date})
+                {t('reconciliationOf')}: {activeReconciliationCustody.repName} ({activeReconciliationCustody.date})
               </h3>
 
               <form onSubmit={handleReconcileSubmit} className="flex flex-col gap-6">
@@ -261,18 +261,18 @@ export const FinanceClosing: React.FC = () => {
                 {/* Stock reconciliation list */}
                 <div className="flex flex-col gap-3">
                   <h4 className="text-xs font-bold text-neon-cyan uppercase tracking-wider">
-                    Van Inventory Counting & Discrepancy Audits
+                    {t('vanCountingAndAudit')}
                   </h4>
                   <div className="dense-table-container border border-slate-850 rounded">
                     <table className="dense-table">
                       <thead>
                         <tr>
-                          <th>Product</th>
-                          <th className="text-center">Sent</th>
-                          <th className="text-center">Sold</th>
-                          <th className="text-center">Expected Van Remaining</th>
-                          <th className="text-center w-28">Actual Returned (Counted)</th>
-                          <th className="text-right">Variance</th>
+                          <th>{t('tableProduct')}</th>
+                          <th className="text-center">{t('tableSent')}</th>
+                          <th className="text-center">{t('tableSold')}</th>
+                          <th className="text-center">{t('tableExpectedRemaining')}</th>
+                          <th className="text-center w-28">{t('tableActualReturned')}</th>
+                          <th className="text-right">{t('tableVariance')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -319,7 +319,7 @@ export const FinanceClosing: React.FC = () => {
                     rows={2}
                     value={closingNotes}
                     onChange={(e) => setClosingNotes(e.target.value)}
-                    placeholder="Enter discrepancies comments, vehicle inspection issues, etc..."
+                    placeholder={t('reconcileNotesPlaceholder')}
                   />
                 </div>
 
@@ -336,7 +336,7 @@ export const FinanceClosing: React.FC = () => {
                     type="submit"
                     className="btn-primary-green py-2.5 px-6 text-xs"
                   >
-                    Approve & Close Day
+                    {t('approveAndCloseDay')}
                   </button>
                 </div>
 
@@ -345,9 +345,9 @@ export const FinanceClosing: React.FC = () => {
           ) : (
             <GlassCard className="p-12 flex flex-col items-center justify-center text-center">
               <ClipboardCheck className="w-12 h-12 text-text-muted mb-4" />
-              <h3 className="text-lg font-medium text-white mb-2">Select a daily sheet to reconcile</h3>
+              <h3 className="text-lg font-medium text-white mb-2">{t('selectSheetToReconcile')}</h3>
               <p className="text-text-secondary text-sm max-w-sm">
-                Choose a representative custody from the left panel to verify their returned products and daily cash collected.
+                {t('selectSheetDesc')}
               </p>
             </GlassCard>
           )}
@@ -396,7 +396,7 @@ export const FinanceClosing: React.FC = () => {
                   type="text"
                   value={expenseDesc}
                   onChange={(e) => setExpenseDesc(e.target.value)}
-                  placeholder="e.g., fuel invoice for samer van"
+                  placeholder={t('expenseDescPlaceholder')}
                   required
                 />
               </div>
@@ -413,7 +413,7 @@ export const FinanceClosing: React.FC = () => {
                   type="submit"
                   className="btn-primary-pink py-2 px-6 text-xs"
                 >
-                  Save Expense
+                  {t('saveExpense')}
                 </button>
               </div>
             </form>

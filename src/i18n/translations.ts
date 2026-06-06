@@ -189,6 +189,25 @@ export const translations = {
     // UI Styles Settings
     neonModeGlow: 'Neon Accent Glows',
     glassBlur: 'Glass Transparency',
+    
+    // Finance Hardcoded Additions
+    financeDesc: 'Verify representative custody accounts, settle daily sales cash, and record expenses.',
+    recentExpenses: 'Recent Expenses',
+    noExpenses: 'No expenses recorded',
+    reconciliationOf: 'Reconciliation',
+    vanCountingAndAudit: 'Van Inventory Counting & Discrepancy Audits',
+    tableProduct: 'Product',
+    tableSent: 'Sent',
+    tableSold: 'Sold',
+    tableExpectedRemaining: 'Expected Remaining',
+    tableActualReturned: 'Actual Returned',
+    tableVariance: 'Variance',
+    selectSheetToReconcile: 'Select a daily sheet to reconcile',
+    selectSheetDesc: 'Choose a representative custody from the left panel to verify their returned products and daily cash collected.',
+    approveAndCloseDay: 'Approve & Close Day',
+    saveExpense: 'Save Expense',
+    reconcileNotesPlaceholder: 'Enter discrepancies comments, vehicle inspection issues, etc...',
+    expenseDescPlaceholder: 'e.g., fuel invoice for samer van',
   },
   ar: {
     appName: 'ألحان ERP والمندوبين',
@@ -378,5 +397,24 @@ export const translations = {
     // UI Styles Settings
     neonModeGlow: 'تأثير التوهج النيوني للواجهة',
     glassBlur: 'تأثير شفافية الزجاج المغبش',
+    
+    // Finance Hardcoded Additions
+    financeDesc: 'مراجعة وتفتيش عهد المندوبين، تسوية النقدية اليومية، وتسجيل المصاريف العامة.',
+    recentExpenses: 'المصاريف العامة الأخيرة',
+    noExpenses: 'لا توجد مصاريف مسجلة',
+    reconciliationOf: 'تسوية وتسليم عهدة',
+    vanCountingAndAudit: 'جرد بضائع السيارة وتدقيق العجز والفوارق',
+    tableProduct: 'المنتج',
+    tableSent: 'المرسل (العهدة)',
+    tableSold: 'المباع',
+    tableExpectedRemaining: 'المتبقي المتوقع',
+    tableActualReturned: 'المرتجع الفعلي',
+    tableVariance: 'الفارق / العجز',
+    selectSheetToReconcile: 'اختر عهدة مندوب للتقفيل والتسوية',
+    selectSheetDesc: 'اختر عهدة المندوب المعلقة من القائمة الجانبية لمراجعة جرد البضائع المرتجعة والمبالغ النقدية المحصلة.',
+    approveAndCloseDay: 'اعتماد وتقفيل اليوم',
+    saveExpense: 'حفظ وتسجيل المصروف',
+    reconcileNotesPlaceholder: 'ادخل ملاحظات العجز، حالة السيارة، الملاحظات المالية...',
+    expenseDescPlaceholder: 'مثال: فاتورة بنزين سيارة سامر',
   },
 };
