@@ -12,6 +12,7 @@ import { ClientCRM } from './views/admin/ClientCRM';
 import { FinanceClosing } from './views/admin/FinanceClosing';
 import { ReportsView } from './views/admin/ReportsView';
 import { UserManagement } from './views/admin/UserManagement';
+import { AnalyticsDashboard } from './views/admin/AnalyticsDashboard';
 
 // Rep Views
 import { RepDashboard } from './views/rep/RepDashboard';
@@ -32,7 +33,8 @@ import {
   Menu, 
   X,
   Database,
-  ShoppingCart
+  ShoppingCart,
+  Activity
 } from 'lucide-react';
 
 const AppContent: React.FC = () => {
@@ -257,19 +259,58 @@ const AppContent: React.FC = () => {
 
   // --- 2. ADMIN/WAREHOUSE MANAGER INTERFACE (DESKTOP VIEW) ---
   
-  // Define menu items with RBAC permissions
-  const menuItems = [
-    { id: 'dashboard', label: t('menuDashboard'), icon: LayoutDashboard, role: ['admin', 'warehouse'] },
-    { id: 'inventory', label: t('menuInventory'), icon: Package, role: ['admin', 'warehouse'] },
-    { id: 'stockTransfer', label: t('menuStockTransfer'), icon: ArrowLeftRight, role: ['admin', 'warehouse'] },
-    { id: 'invoices', label: t('menuInvoices'), icon: FileText, role: ['admin', 'warehouse'] },
-    { id: 'clients', label: t('menuClients'), icon: Users, role: ['admin', 'warehouse'] },
-    { id: 'finance', label: t('menuFinance'), icon: DollarSign, role: ['admin'] }, // Admins only
-    { id: 'reports', label: t('menuReports'), icon: BarChart3, role: ['admin', 'warehouse'] },
-    { id: 'users', label: t('menuUsers'), icon: UserCog, role: ['admin'] } // Admins only
+  // Define menu groups with RBAC permissions
+  const menuGroups = [
+    {
+      id: 'general',
+      labelEn: 'General',
+      labelAr: 'العام والرئيسية',
+      items: [
+        { id: 'dashboard', label: t('menuDashboard'), icon: LayoutDashboard, role: ['admin', 'warehouse'] }
+      ]
+    },
+    {
+      id: 'sales_logistics',
+      labelEn: 'Sales & Logistics',
+      labelAr: 'المبيعات واللوجستيات',
+      items: [
+        { id: 'invoices', label: t('menuInvoices'), icon: FileText, role: ['admin', 'warehouse'] },
+        { id: 'clients', label: t('menuClients'), icon: Users, role: ['admin', 'warehouse'] },
+        { id: 'stockTransfer', label: t('menuStockTransfer'), icon: ArrowLeftRight, role: ['admin', 'warehouse'] }
+      ]
+    },
+    {
+      id: 'warehouse_inventory',
+      labelEn: 'Warehouse',
+      labelAr: 'المستودع والمخازن',
+      items: [
+        { id: 'inventory', label: t('menuInventory'), icon: Package, role: ['admin', 'warehouse'] }
+      ]
+    },
+    {
+      id: 'finance_analytics',
+      labelEn: 'Finance & Analytics',
+      labelAr: 'المالية والتحليلات',
+      items: [
+        { id: 'finance', label: t('menuFinance'), icon: DollarSign, role: ['admin'] },
+        { id: 'reports', label: t('menuReports'), icon: BarChart3, role: ['admin', 'warehouse'] },
+        { id: 'analytics', label: language === 'ar' ? 'التحليلات والمؤشرات' : 'Analytics & KPIs', icon: Activity, role: ['admin'] }
+      ]
+    },
+    {
+      id: 'system',
+      labelEn: 'System Settings',
+      labelAr: 'إعدادات النظام',
+      items: [
+        { id: 'users', label: t('menuUsers'), icon: UserCog, role: ['admin'] }
+      ]
+    }
   ];
 
-  const allowedMenuItems = menuItems.filter(item => item.role.includes(user.role));
+  const filteredGroups = menuGroups.map(group => {
+    const items = group.items.filter(item => item.role.includes(user.role));
+    return { ...group, items };
+  }).filter(group => group.items.length > 0);
 
   const renderAdminContent = () => {
     switch (activeTab) {
@@ -288,6 +329,9 @@ const AppContent: React.FC = () => {
         return <FinanceClosing />;
       case 'reports':
         return <ReportsView />;
+      case 'analytics':
+        if (isWarehouseManager) return <AdminDashboard />;
+        return <AnalyticsDashboard />;
       case 'users':
         if (isWarehouseManager) return <AdminDashboard />;
         return <UserManagement />;
@@ -311,26 +355,35 @@ const AppContent: React.FC = () => {
           </div>
         </div>
 
-        {/* Menu Items */}
-        <nav className="sidebar-nav flex flex-col gap-1-5 custom-scrollbar">
-          {allowedMenuItems.map(item => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
-                  isActive 
-                    ? 'bg-neon-cyan/15 border border-neon-cyan/30 text-neon-cyan text-glow-cyan font-bold' 
-                    : 'bg-transparent border border-transparent text-text-secondary hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
+        {/* Menu Items - Grouped elegantly */}
+        <nav className="sidebar-nav flex flex-col gap-5 custom-scrollbar">
+          {filteredGroups.map(group => (
+            <div key={group.id} className="flex flex-col gap-1 text-right-aligned">
+              <span className="text-[10px] text-text-muted font-black tracking-wider uppercase px-4 mb-1 border-b border-white/5 pb-1 select-none block">
+                {language === 'ar' ? group.labelAr : group.labelEn}
+              </span>
+              <div className="flex flex-col gap-1">
+                {group.items.map(item => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveTab(item.id)}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                        isActive 
+                          ? 'bg-neon-cyan/15 border border-neon-cyan/30 text-neon-cyan text-glow-cyan font-bold' 
+                          : 'bg-transparent border border-transparent text-text-secondary hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 flex-shrink-0" />
+                      <span className="truncate">{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* Footer info & Logout */}
@@ -417,28 +470,37 @@ const AppContent: React.FC = () => {
               {t('appName')}
             </h1>
 
-            <nav className="flex-1 flex flex-col gap-1-5 overflow-y-auto">
-              {allowedMenuItems.map(item => {
-                const Icon = item.icon;
-                const isActive = activeTab === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setActiveTab(item.id);
-                      setMobileMenuOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                      isActive 
-                        ? 'bg-neon-cyan/15 border border-neon-cyan/25 text-neon-cyan font-bold' 
-                        : 'bg-transparent text-text-secondary hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
+            <nav className="flex-1 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
+              {filteredGroups.map(group => (
+                <div key={group.id} className="flex flex-col gap-1">
+                  <span className="text-[10px] text-text-muted font-black tracking-wider uppercase px-4 mb-1 border-b border-white/5 pb-1 select-none block">
+                    {language === 'ar' ? group.labelAr : group.labelEn}
+                  </span>
+                  <div className="flex flex-col gap-1">
+                    {group.items.map(item => {
+                      const Icon = item.icon;
+                      const isActive = activeTab === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => {
+                            setActiveTab(item.id);
+                            setMobileMenuOpen(false);
+                          }}
+                          className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                            isActive 
+                              ? 'bg-neon-cyan/15 border border-neon-cyan/25 text-neon-cyan font-bold' 
+                              : 'bg-transparent text-text-secondary hover:text-white hover:bg-white/5'
+                          }`}
+                        >
+                          <Icon className="w-4 h-4 flex-shrink-0" />
+                          <span className="truncate">{item.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </nav>
 
             <div className="border-t border-white/5 pt-4 flex flex-col gap-3">

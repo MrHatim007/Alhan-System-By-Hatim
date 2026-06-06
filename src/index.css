@@ -909,3 +909,30 @@ input:-webkit-autofill:active {
     border: none !important;
   }
 }
+
+/* RTL Icon & Spacing Refinements */
+body.rtl-layout .sidebar-nav button,
+body.rtl-layout .sidebar button,
+body.rtl-layout .rep-sidebar button,
+body.rtl-layout .rep-navbar button,
+body.rtl-layout .rep-mobile-navbar button {
+  flex-direction: row !important; /* Force side-by-side layout */
+  justify-content: flex-start !important;
+}
+
+body.rtl-layout .sidebar-nav button svg,
+body.rtl-layout .sidebar button svg,
+body.rtl-layout .rep-sidebar button svg,
+body.rtl-layout .rep-navbar button svg,
+body.rtl-layout .rep-mobile-navbar button svg,
+body.rtl-layout button svg {
+  flex-shrink: 0 !important;
+}
+
+/* Group headers and text alignment in RTL */
+body.rtl-layout .text-right-aligned,
+body.rtl-layout .sidebar-nav,
+body.rtl-layout .sidebar-brand {
+  text-align: right !important;
+}
+
