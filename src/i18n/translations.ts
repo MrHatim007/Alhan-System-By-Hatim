@@ -2,7 +2,7 @@ export type Language = 'en' | 'ar';
 
 export const translations = {
   en: {
-    appName: 'Alhan ERP & Van-Sales',
+    appName: 'Hatim Finance',
     toggleLanguage: 'العربية',
     login: 'Login',
     logout: 'Logout',
@@ -280,7 +280,7 @@ export const translations = {
     itemDetails: 'Item Details',
   },
   ar: {
-    appName: 'ألحان ERP والمندوبين',
+    appName: 'حاتم للخدمات المالية',
     toggleLanguage: 'English',
     login: 'تسجيل الدخول',
     logout: 'تسجيل الخروج',

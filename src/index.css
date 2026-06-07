@@ -2,44 +2,44 @@
 
 :root {
   /* Colors */
-  --bg-main: #060919;
-  --bg-surface: rgba(13, 19, 44, 0.65);
-  --bg-surface-opaque: #0b0f24;
-  --bg-glass-card: rgba(15, 23, 58, 0.5);
+  --bg-main: #050814; /* Deep Obsidian */
+  --bg-surface: rgba(10, 15, 36, 0.45); /* High transparency glass */
+  --bg-surface-opaque: #090c1e;
+  --bg-glass-card: rgba(8, 12, 32, 0.5);
   
-  --border-glass: rgba(255, 255, 255, 0.07);
-  --border-neon-cyan: rgba(0, 242, 254, 0.3);
-  --border-neon-pink: rgba(255, 0, 127, 0.3);
-  --border-neon-green: rgba(0, 255, 135, 0.3);
-  --border-neon-amber: rgba(249, 212, 35, 0.3);
+  --border-glass: rgba(255, 255, 255, 0.05);
+  --border-neon-cyan: rgba(14, 165, 233, 0.25);
+  --border-neon-pink: rgba(236, 72, 153, 0.25);
+  --border-neon-green: rgba(16, 185, 129, 0.25);
+  --border-neon-amber: rgba(245, 158, 11, 0.25);
   
-  --neon-cyan: #00f2fe;
-  --neon-blue: #4facfe;
-  --neon-pink: #ff007f;
-  --neon-green: #00ff87;
-  --neon-amber: #f9d423;
-  --neon-purple: #b60dfb;
+  --neon-cyan: #0ea5e9; /* Sky Blue/Cyan */
+  --neon-blue: #0284c7;
+  --neon-pink: #ec4899;
+  --neon-green: #10b981;
+  --neon-amber: #f59e0b;
+  --neon-purple: #b5179e;
   
   --text-primary: #ffffff;
-  --text-secondary: #a0aec0;
-  --text-muted: #5e6b8c;
+  --text-secondary: #94a3b8;
+  --text-muted: #475569;
   
   /* Shadow Glows */
-  --shadow-neon-cyan: 0 0 15px rgba(0, 242, 254, 0.3);
-  --shadow-neon-pink: 0 0 15px rgba(255, 0, 127, 0.3);
-  --shadow-neon-green: 0 0 15px rgba(0, 255, 87, 0.3);
-  --shadow-neon-amber: 0 0 15px rgba(249, 212, 35, 0.3);
-  --shadow-neon-purple: 0 0 15px rgba(182, 13, 251, 0.3);
-  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  --shadow-neon-cyan: 0 0 20px rgba(14, 165, 233, 0.3);
+  --shadow-neon-pink: 0 0 20px rgba(236, 72, 153, 0.3);
+  --shadow-neon-green: 0 0 20px rgba(16, 185, 129, 0.3);
+  --shadow-neon-amber: 0 0 20px rgba(245, 158, 11, 0.3);
+  --shadow-neon-purple: 0 0 20px rgba(181, 23, 158, 0.3);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
   
-  --glass-blur: blur(14px);
+  --glass-blur: blur(20px); /* Enhanced blur */
   
   /* Font Families */
   --font-en: 'Outfit', system-ui, sans-serif;
   --font-ar: 'Cairo', system-ui, sans-serif;
   
   /* Transitions */
-  --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --transition-smooth: all 0.3s ease-in-out;
 }
 
 /* Display Utilities */
@@ -744,6 +744,7 @@ body.rtl-layout .pl-9 {
 
 /* RTL Number formatting fix (so currency $ and numbers do not invert order) */
 .font-mono {
+  font-family: 'Monaco', 'Courier New', monospace !important;
   direction: ltr !important;
   display: inline-block;
 }
