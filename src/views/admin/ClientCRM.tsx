@@ -5,9 +5,10 @@ import {
   subscribeToClients, 
   addClient, 
   updateClient,
+  archiveClient,
   ClientRecord 
 } from '../../services/dbService';
-import { Search, Plus, Edit2, Users, DollarSign, AlertTriangle } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Users, DollarSign, AlertTriangle } from 'lucide-react';
 
 export const ClientCRM: React.FC = () => {
   const { t } = useTranslation();
@@ -59,6 +60,12 @@ export const ClientCRM: React.FC = () => {
     setCollectingClient(c);
     setCollectAmount(c.outstandingDebt);
     setShowCollectModal(true);
+  };
+
+  const handleArchive = async (id: string) => {
+    if (window.confirm(t('confirmArchive'))) {
+      await archiveClient(id);
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -229,21 +236,29 @@ export const ClientCRM: React.FC = () => {
                         </div>
                       </td>
                       <td>
-                        <div className="flex gap-2">
+                        <div className="flex items-center gap-1">
                           {c.outstandingDebt > 0 && (
                             <button
                               onClick={() => openCollectModal(c)}
                               title={t('collectDebt')}
-                              className="p-1 px-2.5 rounded bg-neon-green/10 border border-neon-green/20 text-neon-green hover:bg-neon-green/20 text-xs"
+                              className="p-1.5 px-2.5 rounded bg-neon-green/10 border border-neon-green/20 text-neon-green hover:bg-neon-green/20 text-xs font-bold flex items-center justify-center min-h-[32px]"
                             >
                               Collect
                             </button>
                           )}
                           <button
                             onClick={() => openEditModal(c)}
-                            className="p-1.5 rounded hover:bg-white/5 text-slate-400 hover:text-white"
+                            title={t('edit')}
+                            className="p-1.5 rounded hover:bg-white/5 text-slate-400 hover:text-white flex items-center justify-center min-w-[32px] min-h-[32px]"
                           >
-                            <Edit2 className="w-4 h-4" />
+                            <Edit2 className="w-4 h-4 flex-shrink-0" />
+                          </button>
+                          <button
+                            onClick={() => handleArchive(c.id)}
+                            title={t('archiveItem')}
+                            className="p-1.5 rounded hover:bg-neon-pink/10 text-slate-400 hover:text-neon-pink flex items-center justify-center min-w-[32px] min-h-[32px]"
+                          >
+                            <Trash2 className="w-4 h-4 flex-shrink-0" />
                           </button>
                         </div>
                       </td>

@@ -5,9 +5,10 @@ import {
   subscribeToUsers, 
   addUser, 
   updateUser,
+  deleteUser,
   UserRecord 
 } from '../../services/dbService';
-import { Search, Plus, Edit2, ShieldAlert, CheckCircle, UserCheck } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, ShieldAlert, CheckCircle, UserCheck } from 'lucide-react';
 
 export const UserManagement: React.FC = () => {
   const { t } = useTranslation();
@@ -76,6 +77,12 @@ export const UserManagement: React.FC = () => {
   const handleToggleStatus = async (u: UserRecord) => {
     const nextStatus = u.status === 'active' ? 'suspended' : 'active';
     await updateUser(u.id, { status: nextStatus });
+  };
+
+  const handleDeleteUser = async (id: string) => {
+    if (window.confirm(t('confirmDelete'))) {
+      await deleteUser(id);
+    }
   };
 
   const filteredUsers = users.filter(u => 
@@ -157,22 +164,30 @@ export const UserManagement: React.FC = () => {
                       </span>
                     </td>
                     <td>
-                      <div className="flex gap-2">
+                      <div className="flex items-center gap-1">
                         <button
                           onClick={() => openEditModal(u)}
-                          className="p-1.5 rounded hover:bg-white/5 text-slate-400 hover:text-white"
+                          title={t('edit')}
+                          className="p-1.5 rounded hover:bg-white/5 text-slate-400 hover:text-white flex items-center justify-center min-w-[32px] min-h-[32px]"
                         >
-                          <Edit2 className="w-4 h-4" />
+                          <Edit2 className="w-4 h-4 flex-shrink-0" />
                         </button>
                         <button
                           onClick={() => handleToggleStatus(u)}
-                          className={`p-1 px-2.5 rounded text-xs border font-bold ${
+                          className={`p-1.5 px-2.5 rounded text-xs border font-bold flex items-center justify-center min-h-[32px] ${
                             u.status === 'active'
                               ? 'bg-neon-pink/10 border-neon-pink/20 text-neon-pink hover:bg-neon-pink/20'
                               : 'bg-neon-green/10 border-neon-green/20 text-neon-green hover:bg-neon-green/20'
                           }`}
                         >
                           {u.status === 'active' ? 'Suspend' : 'Activate'}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteUser(u.id)}
+                          title={t('delete')}
+                          className="p-1.5 rounded hover:bg-neon-pink/10 text-slate-400 hover:text-neon-pink flex items-center justify-center min-w-[32px] min-h-[32px]"
+                        >
+                          <Trash2 className="w-4 h-4 flex-shrink-0" />
                         </button>
                       </div>
                     </td>

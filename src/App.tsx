@@ -13,6 +13,7 @@ import { FinanceClosing } from './views/admin/FinanceClosing';
 import { ReportsView } from './views/admin/ReportsView';
 import { UserManagement } from './views/admin/UserManagement';
 import { AnalyticsDashboard } from './views/admin/AnalyticsDashboard';
+import { ArchiveView } from './views/admin/ArchiveView';
 
 // Rep Views
 import { RepDashboard } from './views/rep/RepDashboard';
@@ -34,7 +35,8 @@ import {
   X,
   Database,
   ShoppingCart,
-  Activity
+  Activity,
+  Archive
 } from 'lucide-react';
 
 const AppContent: React.FC = () => {
@@ -294,7 +296,8 @@ const AppContent: React.FC = () => {
       items: [
         { id: 'finance', label: t('menuFinance'), icon: DollarSign, role: ['admin'] },
         { id: 'reports', label: t('menuReports'), icon: BarChart3, role: ['admin', 'warehouse'] },
-        { id: 'analytics', label: language === 'ar' ? 'التحليلات والمؤشرات' : 'Analytics & KPIs', icon: Activity, role: ['admin'] }
+        { id: 'analytics', label: language === 'ar' ? 'التحليلات والمؤشرات' : 'Analytics & KPIs', icon: Activity, role: ['admin'] },
+        { id: 'archive', label: language === 'ar' ? 'الأرشيف' : 'Archive', icon: Archive, role: ['admin', 'warehouse'] }
       ]
     },
     {
@@ -332,6 +335,8 @@ const AppContent: React.FC = () => {
       case 'analytics':
         if (isWarehouseManager) return <AdminDashboard />;
         return <AnalyticsDashboard />;
+      case 'archive':
+        return <ArchiveView />;
       case 'users':
         if (isWarehouseManager) return <AdminDashboard />;
         return <UserManagement />;

@@ -7,11 +7,12 @@ import {
   subscribeToClients, 
   subscribeToProducts, 
   addInvoice,
+  archiveInvoice,
   InvoiceRecord,
   ClientRecord,
   ProductRecord
 } from '../../services/dbService';
-import { Search, Plus, Eye, Printer, FileText, CheckCircle, Clock } from 'lucide-react';
+import { Search, Plus, Eye, Trash2, Printer, FileText, CheckCircle, Clock } from 'lucide-react';
 
 export const SalesInvoices: React.FC = () => {
   const { t, language } = useTranslation();
@@ -171,6 +172,12 @@ export const SalesInvoices: React.FC = () => {
     setShowWalkInModal(false);
   };
 
+  const handleArchive = async (id: string) => {
+    if (window.confirm(t('confirmArchive'))) {
+      await archiveInvoice(id);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6">
       
@@ -278,12 +285,22 @@ export const SalesInvoices: React.FC = () => {
                       </span>
                     </td>
                     <td>
-                      <button
-                        onClick={() => setSelectedInvoice(inv)}
-                        className="p-1.5 rounded hover:bg-white/5 text-slate-400 hover:text-white"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setSelectedInvoice(inv)}
+                          title={t('invoiceDetails')}
+                          className="p-1.5 rounded hover:bg-white/5 text-slate-400 hover:text-white flex items-center justify-center min-w-[32px] min-h-[32px]"
+                        >
+                          <Eye className="w-4 h-4 flex-shrink-0" />
+                        </button>
+                        <button
+                          onClick={() => handleArchive(inv.id)}
+                          title={t('archiveItem')}
+                          className="p-1.5 rounded hover:bg-neon-pink/10 text-slate-400 hover:text-neon-pink flex items-center justify-center min-w-[32px] min-h-[32px]"
+                        >
+                          <Trash2 className="w-4 h-4 flex-shrink-0" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

@@ -37,6 +37,7 @@ export interface ProductRecord {
   vanStock: number;
   minStockAlert: number;
   createdAt: string;
+  archived?: boolean;
 }
 
 export interface ClientRecord {
@@ -49,6 +50,7 @@ export interface ClientRecord {
   creditLimit: number;
   outstandingDebt: number;
   createdAt: string;
+  archived?: boolean;
 }
 
 export interface CustodyRecord {
@@ -72,6 +74,7 @@ export interface CustodyRecord {
   closedAt?: string;
   closedBy?: string;
   notes?: string;
+  archived?: boolean;
 }
 
 export interface InvoiceRecord {
@@ -99,6 +102,7 @@ export interface InvoiceRecord {
   status: 'paid' | 'unpaid' | 'partially_paid';
   custodyId?: string;
   gps?: { lat: number; lng: number } | null;
+  archived?: boolean;
 }
 
 export interface ExpenseRecord {
@@ -223,7 +227,8 @@ getLocalCollection('custodies', mockCustodies);
 // --- Swappable Database Services API ---
 
 // 1. PRODUCTS
-export const subscribeToProducts = (callback: Callback<ProductRecord[]>): (() => void) => {
+export const subscribeToProducts = (callback: Callback<ProductRecord[]>, includeArchived = false): (() => void) => {
+  const filterActive = (list: ProductRecord[]) => includeArchived ? list : list.filter(p => !p.archived);
   if (isFirebaseConnected && firestoreDb) {
     const q = query(collection(firestoreDb, 'products'));
     return onSnapshot(q, (snapshot) => {
@@ -231,25 +236,46 @@ export const subscribeToProducts = (callback: Callback<ProductRecord[]>): (() =>
       snapshot.forEach(doc => {
         list.push({ id: doc.id, ...doc.data() } as ProductRecord);
       });
-      callback(list);
+      callback(filterActive(list));
     }, (err) => {
       console.error('Firestore products subscription error', err);
       // Fallback
       const local = getLocalCollection<ProductRecord>('products', mockProducts);
-      callback(local);
+      callback(filterActive(local));
     });
   } else {
     const key = 'products';
     if (!subscribers[key]) subscribers[key] = [];
-    subscribers[key].push(callback);
+    const wrappedCallback = (data: ProductRecord[]) => {
+      callback(filterActive(data));
+    };
+    subscribers[key].push(wrappedCallback);
     
     // Initial call
     const local = getLocalCollection<ProductRecord>('products', mockProducts);
-    callback(local);
+    callback(filterActive(local));
     
     return () => {
-      subscribers[key] = subscribers[key].filter(cb => cb !== callback);
+      subscribers[key] = subscribers[key].filter(cb => cb !== wrappedCallback);
     };
+  }
+};
+
+export const archiveProduct = async (id: string) => {
+  await updateProduct(id, { archived: true });
+};
+
+export const restoreProduct = async (id: string) => {
+  await updateProduct(id, { archived: false });
+};
+
+export const deleteProduct = async (id: string) => {
+  if (isFirebaseConnected && firestoreDb) {
+    await deleteDoc(doc(firestoreDb, 'products', id));
+  } else {
+    const list = getLocalCollection<ProductRecord>('products', mockProducts);
+    const updated = list.filter(p => p.id !== id);
+    saveLocalCollection('products', updated);
   }
 };
 
@@ -282,7 +308,8 @@ export const addProduct = async (product: Omit<ProductRecord, 'id' | 'createdAt'
 };
 
 // 2. CLIENTS
-export const subscribeToClients = (callback: Callback<ClientRecord[]>): (() => void) => {
+export const subscribeToClients = (callback: Callback<ClientRecord[]>, includeArchived = false): (() => void) => {
+  const filterActive = (list: ClientRecord[]) => includeArchived ? list : list.filter(c => !c.archived);
   if (isFirebaseConnected && firestoreDb) {
     const q = query(collection(firestoreDb, 'clients'));
     return onSnapshot(q, (snapshot) => {
@@ -290,22 +317,43 @@ export const subscribeToClients = (callback: Callback<ClientRecord[]>): (() => v
       snapshot.forEach(doc => {
         list.push({ id: doc.id, ...doc.data() } as ClientRecord);
       });
-      callback(list);
+      callback(filterActive(list));
     }, (err) => {
       console.error('Firestore clients error', err);
-      callback(getLocalCollection<ClientRecord>('clients', mockClients));
+      callback(filterActive(getLocalCollection<ClientRecord>('clients', mockClients)));
     });
   } else {
     const key = 'clients';
     if (!subscribers[key]) subscribers[key] = [];
-    subscribers[key].push(callback);
+    const wrappedCallback = (data: ClientRecord[]) => {
+      callback(filterActive(data));
+    };
+    subscribers[key].push(wrappedCallback);
     
     const local = getLocalCollection<ClientRecord>('clients', mockClients);
-    callback(local);
+    callback(filterActive(local));
     
     return () => {
-      subscribers[key] = subscribers[key].filter(cb => cb !== callback);
+      subscribers[key] = subscribers[key].filter(cb => cb !== wrappedCallback);
     };
+  }
+};
+
+export const archiveClient = async (id: string) => {
+  await updateClient(id, { archived: true });
+};
+
+export const restoreClient = async (id: string) => {
+  await updateClient(id, { archived: false });
+};
+
+export const deleteClient = async (id: string) => {
+  if (isFirebaseConnected && firestoreDb) {
+    await deleteDoc(doc(firestoreDb, 'clients', id));
+  } else {
+    const list = getLocalCollection<ClientRecord>('clients', mockClients);
+    const updated = list.filter(c => c.id !== id);
+    saveLocalCollection('clients', updated);
   }
 };
 
@@ -342,7 +390,8 @@ export const addClient = async (client: Omit<ClientRecord, 'id' | 'createdAt' | 
 };
 
 // 3. INVOICES
-export const subscribeToInvoices = (callback: Callback<InvoiceRecord[]>): (() => void) => {
+export const subscribeToInvoices = (callback: Callback<InvoiceRecord[]>, includeArchived = false): (() => void) => {
+  const filterActive = (list: InvoiceRecord[]) => includeArchived ? list : list.filter(inv => !inv.archived);
   if (isFirebaseConnected && firestoreDb) {
     const q = query(collection(firestoreDb, 'invoices'), orderBy('date', 'desc'));
     return onSnapshot(q, (snapshot) => {
@@ -350,24 +399,59 @@ export const subscribeToInvoices = (callback: Callback<InvoiceRecord[]>): (() =>
       snapshot.forEach(doc => {
         list.push({ id: doc.id, ...doc.data() } as InvoiceRecord);
       });
-      callback(list);
+      callback(filterActive(list));
     }, (err) => {
       console.error('Firestore invoices error', err);
-      callback(getLocalCollection<InvoiceRecord>('invoices', mockInvoices));
+      callback(filterActive(getLocalCollection<InvoiceRecord>('invoices', mockInvoices)));
     });
   } else {
     const key = 'invoices';
     if (!subscribers[key]) subscribers[key] = [];
-    subscribers[key].push(callback);
+    const wrappedCallback = (data: InvoiceRecord[]) => {
+      callback(filterActive(data));
+    };
+    subscribers[key].push(wrappedCallback);
     
     // Sort local by date descending
     const local = getLocalCollection<InvoiceRecord>('invoices', mockInvoices)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    callback(local);
+    callback(filterActive(local));
     
     return () => {
-      subscribers[key] = subscribers[key].filter(cb => cb !== callback);
+      subscribers[key] = subscribers[key].filter(cb => cb !== wrappedCallback);
     };
+  }
+};
+
+export const archiveInvoice = async (id: string) => {
+  if (isFirebaseConnected && firestoreDb) {
+    const docRef = doc(firestoreDb, 'invoices', id);
+    await updateDoc(docRef, { archived: true });
+  } else {
+    const list = getLocalCollection<InvoiceRecord>('invoices', mockInvoices);
+    const updated = list.map(inv => inv.id === id ? { ...inv, archived: true } : inv);
+    saveLocalCollection('invoices', updated);
+  }
+};
+
+export const restoreInvoice = async (id: string) => {
+  if (isFirebaseConnected && firestoreDb) {
+    const docRef = doc(firestoreDb, 'invoices', id);
+    await updateDoc(docRef, { archived: false });
+  } else {
+    const list = getLocalCollection<InvoiceRecord>('invoices', mockInvoices);
+    const updated = list.map(inv => inv.id === id ? { ...inv, archived: false } : inv);
+    saveLocalCollection('invoices', updated);
+  }
+};
+
+export const deleteInvoice = async (id: string) => {
+  if (isFirebaseConnected && firestoreDb) {
+    await deleteDoc(doc(firestoreDb, 'invoices', id));
+  } else {
+    const list = getLocalCollection<InvoiceRecord>('invoices', mockInvoices);
+    const updated = list.filter(inv => inv.id !== id);
+    saveLocalCollection('invoices', updated);
   }
 };
 
@@ -450,7 +534,8 @@ export const addInvoice = async (invoice: Omit<InvoiceRecord, 'id' | 'invoiceNum
 };
 
 // 4. CUSTODIES
-export const subscribeToCustodies = (callback: Callback<CustodyRecord[]>): (() => void) => {
+export const subscribeToCustodies = (callback: Callback<CustodyRecord[]>, includeArchived = false): (() => void) => {
+  const filterActive = (list: CustodyRecord[]) => includeArchived ? list : list.filter(c => !c.archived);
   if (isFirebaseConnected && firestoreDb) {
     const q = query(collection(firestoreDb, 'custodies'), orderBy('date', 'desc'));
     return onSnapshot(q, (snapshot) => {
@@ -458,22 +543,43 @@ export const subscribeToCustodies = (callback: Callback<CustodyRecord[]>): (() =
       snapshot.forEach(doc => {
         list.push({ id: doc.id, ...doc.data() } as CustodyRecord);
       });
-      callback(list);
+      callback(filterActive(list));
     }, (err) => {
       console.error('Firestore custodies error', err);
-      callback(getLocalCollection<CustodyRecord>('custodies', mockCustodies));
+      callback(filterActive(getLocalCollection<CustodyRecord>('custodies', mockCustodies)));
     });
   } else {
     const key = 'custodies';
     if (!subscribers[key]) subscribers[key] = [];
-    subscribers[key].push(callback);
+    const wrappedCallback = (data: CustodyRecord[]) => {
+      callback(filterActive(data));
+    };
+    subscribers[key].push(wrappedCallback);
     
     const local = getLocalCollection<CustodyRecord>('custodies', mockCustodies);
-    callback(local);
+    callback(filterActive(local));
     
     return () => {
-      subscribers[key] = subscribers[key].filter(cb => cb !== callback);
+      subscribers[key] = subscribers[key].filter(cb => cb !== wrappedCallback);
     };
+  }
+};
+
+export const archiveCustody = async (id: string) => {
+  await updateCustody(id, { archived: true });
+};
+
+export const restoreCustody = async (id: string) => {
+  await updateCustody(id, { archived: false });
+};
+
+export const deleteCustody = async (id: string) => {
+  if (isFirebaseConnected && firestoreDb) {
+    await deleteDoc(doc(firestoreDb, 'custodies', id));
+  } else {
+    const list = getLocalCollection<CustodyRecord>('custodies', mockCustodies);
+    const updated = list.filter(c => c.id !== id);
+    saveLocalCollection('custodies', updated);
   }
 };
 
@@ -565,6 +671,16 @@ export const addExpense = async (expense: Omit<ExpenseRecord, 'id' | 'date'>) =>
   }
 };
 
+export const deleteExpense = async (id: string) => {
+  if (isFirebaseConnected && firestoreDb) {
+    await deleteDoc(doc(firestoreDb, 'expenses', id));
+  } else {
+    const list = getLocalCollection<ExpenseRecord>('expenses', mockExpenses);
+    const updated = list.filter(exp => exp.id !== id);
+    saveLocalCollection('expenses', updated);
+  }
+};
+
 // 6. USERS
 export const subscribeToUsers = (callback: Callback<UserRecord[]>): (() => void) => {
   if (isFirebaseConnected && firestoreDb) {
@@ -618,6 +734,16 @@ export const updateUser = async (id: string, updates: Partial<UserRecord>) => {
   } else {
     const list = getLocalCollection<UserRecord>('users', mockUsers);
     const updated = list.map(u => u.id === id ? { ...u, ...updates } : u);
+    saveLocalCollection('users', updated);
+  }
+};
+
+export const deleteUser = async (id: string) => {
+  if (isFirebaseConnected && firestoreDb) {
+    await deleteDoc(doc(firestoreDb, 'users', id));
+  } else {
+    const list = getLocalCollection<UserRecord>('users', mockUsers);
+    const updated = list.filter(u => u.id !== id);
     saveLocalCollection('users', updated);
   }
 };

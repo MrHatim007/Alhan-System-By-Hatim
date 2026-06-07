@@ -6,9 +6,10 @@ import {
   subscribeToProducts, 
   addProduct, 
   updateProduct,
+  archiveProduct,
   ProductRecord 
 } from '../../services/dbService';
-import { Search, Plus, Edit2, Package, Eye, AlertTriangle } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Package, Eye, AlertTriangle } from 'lucide-react';
 
 export const InventoryManager: React.FC = () => {
   const { t, language } = useTranslation();
@@ -63,6 +64,12 @@ export const InventoryManager: React.FC = () => {
     setWarehouseStock(p.warehouseStock);
     setMinStockAlert(p.minStockAlert);
     setShowModal(true);
+  };
+
+  const handleArchive = async (id: string) => {
+    if (window.confirm(t('confirmArchive'))) {
+      await archiveProduct(id);
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -210,12 +217,22 @@ export const InventoryManager: React.FC = () => {
                       {isAdmin && <td className="text-text-secondary font-mono">${p.costPrice}</td>}
                       <td className="text-neon-green font-mono font-semibold">${p.sellingPrice}</td>
                       <td>
-                        <button
-                          onClick={() => openEditModal(p)}
-                          className="p-1.5 rounded hover:bg-white/5 text-slate-400 hover:text-white"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => openEditModal(p)}
+                            title={t('edit')}
+                            className="p-1.5 rounded hover:bg-white/5 text-slate-400 hover:text-white flex items-center justify-center min-w-[32px] min-h-[32px]"
+                          >
+                            <Edit2 className="w-4 h-4 flex-shrink-0" />
+                          </button>
+                          <button
+                            onClick={() => handleArchive(p.id)}
+                            title={t('archiveItem')}
+                            className="p-1.5 rounded hover:bg-neon-pink/10 text-slate-400 hover:text-neon-pink flex items-center justify-center min-w-[32px] min-h-[32px]"
+                          >
+                            <Trash2 className="w-4 h-4 flex-shrink-0" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

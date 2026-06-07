@@ -9,11 +9,12 @@ import {
   updateCustody,
   updateProduct,
   addExpense,
+  deleteExpense,
   CustodyRecord,
   ExpenseRecord,
   ProductRecord
 } from '../../services/dbService';
-import { DollarSign, Truck, AlertOctagon, ClipboardCheck, ClipboardX, Plus, ListCollapse } from 'lucide-react';
+import { DollarSign, Truck, AlertOctagon, ClipboardCheck, ClipboardX, Plus, ListCollapse, Trash2 } from 'lucide-react';
 
 export const FinanceClosing: React.FC = () => {
   const { t, language } = useTranslation();
@@ -142,7 +143,8 @@ export const FinanceClosing: React.FC = () => {
         cashReceived: Number(physicalCashInput),
         closedAt: new Date().toISOString(),
         closedBy: user?.name || 'Admin',
-        notes: closingNotes
+        notes: closingNotes,
+        archived: true
       });
 
       // Replenish warehouse inventory:
@@ -242,13 +244,26 @@ export const FinanceClosing: React.FC = () => {
                 <p className="text-text-muted text-xs text-center py-4">{t('noExpenses')}</p>
               ) : (
                 expenses.map(exp => (
-                  <div key={exp.id} className="p-3 rounded bg-slate-900 border border-slate-800 text-xs flex justify-between items-start">
-                    <div className="flex flex-col gap-0.5 max-w-[70%]">
+                  <div key={exp.id} className="p-3 rounded bg-slate-900 border border-slate-800 text-xs flex justify-between items-center gap-2">
+                    <div className="flex flex-col gap-0.5 max-w-[65%]">
                       <span className="font-bold text-white">{exp.category}</span>
                       <span className="text-text-secondary">{exp.description}</span>
                       <span className="text-[10px] text-text-muted">{new Date(exp.date).toLocaleDateString()}</span>
                     </div>
-                    <span className="font-bold text-neon-pink font-mono">${exp.amount}</span>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span className="font-bold text-neon-pink font-mono">${exp.amount}</span>
+                      <button
+                        onClick={async () => {
+                          if (window.confirm(t('confirmDelete'))) {
+                            await deleteExpense(exp.id);
+                          }
+                        }}
+                        title={t('delete')}
+                        className="p-1.5 rounded hover:bg-neon-pink/10 text-slate-400 hover:text-neon-pink flex items-center justify-center min-w-[28px] min-h-[28px]"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 flex-shrink-0" />
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
