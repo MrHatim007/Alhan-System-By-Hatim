@@ -52,8 +52,10 @@ export const Layout: React.FC<LayoutProps> = ({
     <div className="admin-container flex h-screen w-screen overflow-hidden bg-obsidian-main text-text-primary">
       
       {/* 1. FIXED DESKTOP SIDEBAR (256px wide, locked height, LTR/RTL mirror border) */}
-      <aside className={`sidebar hidden lg:flex flex-col w-[256px] h-full bg-obsidian-surfaceOpaque flex-shrink-0 transition-all duration-300 ${
-        isRTL ? 'border-l border-white/5' : 'border-r border-white/5'
+      <aside className={`sidebar hidden lg:flex flex-col lg:fixed lg:top-0 lg:bottom-0 lg:w-64 lg:h-screen bg-obsidian-surfaceOpaque z-30 transition-all duration-300 ${
+        isRTL 
+          ? 'lg:right-0 lg:left-auto border-l border-white/5' 
+          : 'lg:left-0 lg:right-auto border-r border-white/5'
       }`}>
         
         {/* Branding header (Hatim Finance identity) */}
@@ -135,7 +137,9 @@ export const Layout: React.FC<LayoutProps> = ({
       </aside>
 
       {/* 2. MAIN WORKSPACE CONTAINER */}
-      <div className="main-panel flex flex-col flex-1 min-w-0 h-full overflow-hidden">
+      <div className={`main-panel flex flex-col flex-1 min-w-0 h-full overflow-hidden transition-all duration-300 ${
+        isRTL ? 'lg:mr-64 lg:ml-0' : 'lg:ml-64 lg:mr-0'
+      }`}>
         
         {/* Laptop Header Bar (locked height at 64px) */}
         <header className="header-bar w-full h-[64px] bg-obsidian-surfaceOpaque border-b border-white/5 px-6 flex items-center justify-between flex-shrink-0">
@@ -168,7 +172,7 @@ export const Layout: React.FC<LayoutProps> = ({
 
         {/* Scrollable Viewport Canvas Container (utilizes factors of 8px grid system) */}
         <main className="content-area flex-grow p-6 overflow-y-auto custom-scrollbar bg-obsidian-main">
-          <div className="w-full h-full max-w-[1600px] mx-auto flex flex-col gap-6">
+          <div className="w-full max-w-7xl mx-auto flex flex-col gap-6 pb-12">
             {children}
           </div>
         </main>

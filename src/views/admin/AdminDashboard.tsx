@@ -128,7 +128,7 @@ export const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Metrics Row */}
-      <div className="grid-cols-auto-fit">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         
         {/* Daily Sales */}
         <GlassCard glowColor="green" className="p-6 relative overflow-hidden">

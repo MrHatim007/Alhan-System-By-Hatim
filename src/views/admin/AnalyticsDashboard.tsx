@@ -242,7 +242,7 @@ export const AnalyticsDashboard: React.FC = () => {
       </div>
 
       {/* 4 Core KPIs Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         
         {/* Card 1: Gross Sales */}
         <GlassCard glowColor="green" className="p-5 relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
@@ -370,7 +370,7 @@ export const AnalyticsDashboard: React.FC = () => {
             <Sparkles className="w-4 h-4 text-neon-cyan" />
           </div>
           
-          <div className="flex flex-col gap-5 pt-3">
+          <div className="flex flex-col gap-4 pt-3">
             {categoryShare.map((cat, idx) => (
               <div key={idx} className="flex flex-col gap-1.5">
                 <div className="flex justify-between text-xs">

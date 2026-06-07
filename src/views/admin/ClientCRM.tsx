@@ -144,14 +144,14 @@ export const ClientCRM: React.FC = () => {
 
       {/* Search Bar */}
       <GlassCard className="p-4">
-        <div className="relative">
+        <div className="relative w-full lg:max-w-md">
           <Search className="absolute left-3 top-3 w-4 h-4 text-text-muted" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search code, English name, or Arabic name..."
-            className="pl-9 text-sm"
+            className="pl-9 text-sm w-full"
           />
         </div>
       </GlassCard>

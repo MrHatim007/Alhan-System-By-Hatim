@@ -243,14 +243,14 @@ export const ArchiveView: React.FC = () => {
       {activeTab === 'clients' && (
         <div className="flex flex-col gap-4">
           <GlassCard className="p-4">
-            <div className="relative">
+            <div className="relative w-full lg:max-w-md">
               <Search className="absolute left-3 top-3 w-4 h-4 text-text-muted" />
               <input
                 type="text"
                 value={clientSearch}
                 onChange={(e) => setClientSearch(e.target.value)}
                 placeholder={t('search')}
-                className="pl-9 text-sm"
+                className="pl-9 text-sm w-full"
               />
             </div>
           </GlassCard>
@@ -322,14 +322,14 @@ export const ArchiveView: React.FC = () => {
       {activeTab === 'products' && (
         <div className="flex flex-col gap-4">
           <GlassCard className="p-4">
-            <div className="relative">
+            <div className="relative w-full lg:max-w-md">
               <Search className="absolute left-3 top-3 w-4 h-4 text-text-muted" />
               <input
                 type="text"
                 value={productSearch}
                 onChange={(e) => setProductSearch(e.target.value)}
                 placeholder={t('search')}
-                className="pl-9 text-sm"
+                className="pl-9 text-sm w-full"
               />
             </div>
           </GlassCard>
@@ -399,14 +399,14 @@ export const ArchiveView: React.FC = () => {
       {activeTab === 'invoices' && (
         <div className="flex flex-col gap-4">
           <GlassCard className="p-4">
-            <div className="relative">
+            <div className="relative w-full lg:max-w-md">
               <Search className="absolute left-3 top-3 w-4 h-4 text-text-muted" />
               <input
                 type="text"
                 value={invoiceSearch}
                 onChange={(e) => setInvoiceSearch(e.target.value)}
                 placeholder={t('search')}
-                className="pl-9 text-sm"
+                className="pl-9 text-sm w-full"
               />
             </div>
           </GlassCard>
@@ -489,14 +489,14 @@ export const ArchiveView: React.FC = () => {
       {activeTab === 'custodies' && (
         <div className="flex flex-col gap-4">
           <GlassCard className="p-4">
-            <div className="relative">
+            <div className="relative w-full lg:max-w-md">
               <Search className="absolute left-3 top-3 w-4 h-4 text-text-muted" />
               <input
                 type="text"
                 value={custodySearch}
                 onChange={(e) => setCustodySearch(e.target.value)}
                 placeholder={t('search')}
-                className="pl-9 text-sm"
+                className="pl-9 text-sm w-full"
               />
             </div>
           </GlassCard>

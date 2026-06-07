@@ -27,7 +27,9 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   return (
     <div 
       onClick={onClick}
-      className={`glass-panel ${activeGlow} ${onClick ? 'cursor-pointer hover:scale-[1.01]' : ''} ${className}`}
+      className={`glass-panel ${activeGlow} transition-all duration-300 hover:-translate-y-1 hover:border-white/10 hover:shadow-2xl ${
+        onClick ? 'cursor-pointer hover:scale-[1.01]' : ''
+      } ${className}`}
     >
       {children}
     </div>

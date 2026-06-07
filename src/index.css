@@ -403,7 +403,7 @@ input, select, textarea {
   font-family: inherit !important;
   outline: none !important;
   transition: var(--transition-smooth) !important;
-  width: 100% !important;
+  width: 100%;
 }
 
 select option {

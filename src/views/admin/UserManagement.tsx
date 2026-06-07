@@ -114,14 +114,14 @@ export const UserManagement: React.FC = () => {
 
       {/* Search */}
       <GlassCard className="p-4">
-        <div className="relative">
+        <div className="relative w-full lg:max-w-md">
           <Search className="absolute left-3 top-3 w-4 h-4 text-text-muted" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search name, email..."
-            className="pl-9 text-sm"
+            className="pl-9 text-sm w-full"
           />
         </div>
       </GlassCard>
